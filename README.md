@@ -1,1 +1,1 @@
-# cognitive-minds
+# cognitive minds tutoring 
