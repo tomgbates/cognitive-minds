@@ -11008,7 +11008,7 @@ footer.footer .social-link:hover {
 }
 .masthead {
   min-height: 15rem;
-  position: relative;
+  position: static;
   display: table;
   width: 100%;
   height: 100%;
@@ -11016,7 +11016,6 @@ footer.footer .social-link:hover {
   padding-bottom: 8rem;
   background: url("../assets/img/MastheadBG.png");
   background-position: center;
-  background-repeat: repeat;
   background-size: 100%;
 }
 .masthead h1, .masthead .h1 {
@@ -11107,4 +11106,62 @@ footer.footer .social-link:hover {
   line-height: 7.5rem;
   font-size: 2.25rem;
   box-shadow: 0 3px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.masthead {
+  padding: 100px 0;
+}
+
+@media (max-width: 768px) {
+  .masthead {
+      padding: 50px 0;
+  }
+}
+
+  img {
+      max-width: 100%;
+      height: auto;
+
+  h3 {
+      font-size: 18px;
+  }
+
+  p {
+      font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  h3 {
+      font-size: 16px;
+  }
+
+  p {
+      font-size: 14px;
+  }
+}
+
+body {
+  background-image: url('assets/img/MastheadBG.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  body {
+      background-image: url('assets/img/BGTablet.png');
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+      background-image: url('assets/img/BGPhone.png');
+  }
 }
