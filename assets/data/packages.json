@@ -1,0 +1,97 @@
+[
+  {
+    "id": "one-on-one",
+    "theme": "teal",
+
+    "title": "Online One-on-One Tutoring",
+
+    "description": "Individual online tutoring tailored to the learner's needs, helping them work through real Physics and Chemistry problems while building understanding, reasoning and confidence.",
+
+    "tags": [
+      "One-on-One",
+      "Online"
+    ],
+
+    "pricing": {
+      "type": "standard",
+      "amount": 275,
+      "unit": "hour"
+    },
+
+    "availability": {
+      "spacesRemaining": 2
+    },
+
+    "maxStudents": null,
+    "durationHours": null,
+    "classesPerWeek": null,
+    "approxClassesPerYear": null,
+
+    "features": [
+      "Grades 10–12",
+      "Physics and Chemistry",
+      "Individual attention",
+      "CAPS, IEB, Cambridge and more"
+    ],
+
+    "discount": {
+      "active": false,
+      "percent": 0,
+      "validForSessions": 0
+    },
+
+    "note": null,
+
+    "active": true
+  },
+
+  {
+    "id": "small-group",
+    "theme": "pink",
+
+    "title": "Homeschool Small Group Programme",
+
+    "description": "Focused Physics and Chemistry tutoring in a supportive small-group environment, giving learners time to work through problems, ask questions and develop a deeper understanding of the work.",
+
+    "tags": [
+      "Homeschool",
+      "Small Group"
+    ],
+
+    "pricing": {
+      "type": "programme",
+      "perTerm": 4500,
+      "perClass": 450,
+      "monthly": 1500,
+      "monthlyMonths": 12,
+      "termsPerYear": 4
+    },
+
+    "availability": {
+      "spacesRemaining": null
+    },
+
+    "maxStudents": 5,
+    "durationHours": 3,
+    "classesPerWeek": 1,
+    "approxClassesPerYear": 40,
+
+    "features": [
+      "Grades 10–12",
+      "Physics and Chemistry",
+      "Runs during school terms",
+      "Problem-solving practice",
+      "Supportive learning environment"
+    ],
+
+    "discount": {
+      "active": false,
+      "percent": 0,
+      "validForSessions": 0
+    },
+
+    "note": "Exam-preparation workshops are offered separately at an additional fee.",
+
+    "active": true
+  }
+]
