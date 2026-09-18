@@ -1165,6 +1165,506 @@ a {
 }
 
 /* =========================================
+   Testimonials
+   ========================================= */
+
+.testimonials-home {
+  padding: 110px 0;
+
+  overflow: hidden;
+
+  background-color: var(--color-section-soft);
+
+  border-top:
+    1px solid var(--color-border);
+}
+
+
+/* Section heading */
+
+.testimonials-heading {
+  max-width: 760px;
+
+  text-align: center;
+}
+
+.testimonials-heading h2 {
+  margin: 0;
+
+  font-size:
+    clamp(38px, 4vw, 52px);
+
+  line-height: 1.1;
+
+  letter-spacing: -1.5px;
+}
+
+.testimonials-intro {
+  max-width: 620px;
+
+  margin: 24px auto 0;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: var(--color-text-light);
+}
+
+
+/* =========================================
+   Testimonial Track
+   ========================================= */
+
+.testimonial-carousel {
+  position: relative;
+
+  width: 100%;
+
+  margin-top: 55px;
+
+  padding: 55px 0 65px;
+
+  overflow: hidden;
+}
+
+
+.testimonial-track {
+  display: flex;
+
+  width: max-content;
+
+  will-change: transform;
+}
+
+.testimonial-set {
+  display: flex;
+
+  align-items: center;
+
+  gap: 28px;
+
+  flex-shrink: 0;
+
+  padding-right: 28px;
+}
+
+.testimonial-carousel::before,
+.testimonial-carousel::after {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  bottom: 0;
+
+  width: 8vw;
+
+  z-index: 20;
+
+  pointer-events: none;
+}
+
+
+.testimonial-carousel::before {
+  left: 0;
+
+  background:
+    linear-gradient(
+      to right,
+      var(--color-section-soft),
+      transparent
+    );
+}
+
+
+.testimonial-carousel::after {
+  right: 0;
+
+  background:
+    linear-gradient(
+      to left,
+      var(--color-section-soft),
+      transparent
+    );
+}
+
+
+/* =========================================
+   Individual Testimonial Card
+   ========================================= */
+
+.testimonial-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 330px;
+  height: 360px;
+
+  flex-shrink: 0;
+
+  padding: 30px;
+
+  border:
+    1px solid #e5eeee;
+
+  border-radius:
+    var(--card-radius);
+
+  --testimonial-card-background:
+    var(--color-white);
+
+  background-color:
+    var(--testimonial-card-background);
+
+  box-shadow:
+    var(--card-shadow);
+
+  transform-origin: center;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+
+/*
+  Alternate the card backgrounds.
+
+  This gives us subtle teal/pink variation
+  without making every testimonial look
+  completely different.
+*/
+
+.testimonial-card:nth-child(even) {
+  border-color: #f2dfe8;
+
+  --testimonial-card-background:
+    var(--color-pink-surface);
+
+  background-color:
+    var(--testimonial-card-background);
+}
+
+
+/* Decorative quote */
+
+.testimonial-quote-mark {
+  height: 48px;
+
+  margin-bottom: 8px;
+
+  font-family:
+    Georgia,
+    serif;
+
+  font-size: 70px;
+  line-height: 1;
+
+  color:
+    var(--color-teal-soft);
+}
+
+
+.testimonial-card:nth-child(even)
+.testimonial-quote-mark {
+  color:
+    var(--color-pink-soft);
+}
+
+
+/* Testimonial preview */
+
+.testimonial-preview {
+  margin: 0;
+
+  overflow: hidden;
+
+  max-height: calc(1.65em * 7);
+
+  font-size: 15px;
+  line-height: 1.65;
+
+  color: var(--color-text);
+}
+
+.testimonial-preview.is-truncated {
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 88%,
+      rgba(0, 0, 0, 0.75) 96%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 88%,
+      rgba(0, 0, 0, 0.75) 96%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+}
+
+/* Person */
+
+.testimonial-person {
+  display: grid;
+
+  gap: 4px;
+
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+
+.testimonial-person strong {
+  font-size: 16px;
+}
+
+
+.testimonial-person span {
+  font-size: 13px;
+
+  color:
+    var(--color-text-light);
+}
+
+
+/* Read full testimonial */
+
+.testimonial-read-more {
+  align-self: flex-start;
+
+  margin-top: 14px;
+  padding: 0 0 3px;
+
+  border: 0;
+
+  border-bottom:
+    2px solid var(--color-teal);
+
+  background: transparent;
+
+  font: inherit;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  color:
+    var(--color-teal-dark);
+
+  cursor: pointer;
+}
+
+
+.testimonial-read-more:hover {
+  color:
+    var(--color-teal);
+}
+
+
+/* Link underneath carousel */
+
+.testimonial-footer {
+  text-align: center;
+}
+
+/* =========================================
+   Testimonial Modal
+   ========================================= */
+
+.testimonial-modal {
+  position: fixed;
+
+  inset: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 24px;
+
+  opacity: 0;
+  visibility: hidden;
+
+  pointer-events: none;
+
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+
+  z-index: 2000;
+}
+
+
+.testimonial-modal.is-open {
+  opacity: 1;
+  visibility: visible;
+
+  pointer-events: auto;
+}
+
+
+/* Dark background behind popup */
+
+.testimonial-modal-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background-color:
+    rgba(20, 30, 35, 0.38);
+}
+
+
+/* Actual popup */
+
+.testimonial-modal-content {
+  position: relative;
+
+  width: min(680px, 100%);
+
+  max-height:
+    min(760px, 85vh);
+
+  overflow-y: auto;
+
+  padding: 48px;
+
+  border-radius:
+    var(--card-radius);
+
+  background-color:
+    var(--color-white);
+
+  box-shadow:
+    0 30px 80px
+    rgba(0, 0, 0, 0.18);
+
+  z-index: 1;
+}
+
+
+/* Close button */
+
+.testimonial-modal-close {
+  position: absolute;
+
+  top: 16px;
+  right: 18px;
+
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  font-size: 32px;
+  line-height: 1;
+
+  color:
+    var(--color-text);
+
+  cursor: pointer;
+}
+
+
+.testimonial-modal-close:hover {
+  color:
+    var(--color-teal);
+}
+
+
+.testimonial-modal-close:focus-visible {
+  outline:
+    3px solid
+    rgba(39, 167, 163, 0.35);
+
+  outline-offset: 2px;
+}
+
+
+/* Student / Parent label */
+
+.testimonial-modal-type {
+  margin: 0 0 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+
+  color:
+    var(--color-teal);
+}
+
+
+/* Name */
+
+.testimonial-modal-content h3 {
+  margin: 0;
+
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+
+/* Full testimonial */
+
+.testimonial-modal-text {
+  margin-top: 28px;
+}
+
+
+.testimonial-modal-text p {
+  margin: 0 0 20px;
+
+  font-size: 17px;
+  line-height: 1.75;
+
+  color:
+    var(--color-text-light);
+}
+
+
+.testimonial-modal-text p:last-child {
+  margin-bottom: 0;
+}
+
+
+/* Stop webpage scrolling behind modal */
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* =========================================
+   Reduced Motion
+   ========================================= */
+
+.testimonial-carousel.reduced-motion {
+  overflow-x: auto;
+
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+
+.testimonial-carousel.reduced-motion
+.testimonial-track {
+  transform: none !important;
+}
+
+/* =========================================
    Responsive - Tablet
    ========================================= */
 
@@ -1322,6 +1822,26 @@ a {
 
   .meet-suegné-content {
     max-width: 700px;
+  }
+
+  .testimonials-home {
+    padding: 80px 0;
+  }
+
+  .testimonial-card {
+    width: 310px;
+    height: 350px;
+  }
+
+  .testimonial-set {
+    gap: 24px;
+
+    padding-right: 24px;
+  }
+
+
+  .testimonial-modal-content {
+    padding: 42px;
   }
 }
 
@@ -1512,5 +2032,73 @@ a {
 
   .credential-value {
     margin-bottom: 24px;
+  }
+
+  .testimonials-home {
+    padding: 70px 0;
+  }
+
+
+  .testimonials-heading {
+    text-align: left;
+  }
+
+
+  .testimonials-heading h2 {
+    font-size: 38px;
+  }
+
+
+  .testimonials-intro {
+    margin-left: 0;
+
+    font-size: 16px;
+  }
+
+
+  .testimonial-carousel {
+    margin-top: 35px;
+
+    padding: 45px 0 55px;
+  }
+
+  .testimonial-carousel::before,
+  .testimonial-carousel::after {
+    width: 5vw;
+  }
+
+  .testimonial-modal {
+    padding: 18px;
+  }
+
+
+  .testimonial-modal-content {
+    max-height: 82vh;
+
+    padding:
+      42px 26px 30px;
+  }
+
+
+  .testimonial-modal-content h3 {
+    font-size: 27px;
+  }
+
+
+  .testimonial-modal-text p {
+    font-size: 16px;
+  }
+
+  .testimonial-set {
+    gap: 20px;
+
+    padding-right: 20px;
+  }
+
+  .testimonial-card {
+    width: 280px;
+    height: 350px;
+
+    padding: 26px;
   }
 }

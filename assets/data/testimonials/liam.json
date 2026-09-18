@@ -1,0 +1,9 @@
+{
+  "id": "liam",
+  "name": "Liam",
+  "type": "Student",
+  "grade": null,
+  "testimonial": "Ma’am is a great teacher who lets us ask questions often in class and helped us when we didn't understand something. Ma’am helped me a lot in class with the schoolwork and made the work easier to understand.\n\nMa’am is kind, helpful and caring, and is, to this day, one of my favourite teachers. Ma’am made school fun and interesting. Ma’am is someone I can trust.",
+  "featured": true,
+  "active": true
+}

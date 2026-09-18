@@ -17,6 +17,7 @@
 
     <script src="assets/js/main.js" defer></script>
     <script src="assets/js/packages.js" defer></script>
+    <script src="assets/js/testimonials.js" defer></script>
   </head>
 
   <body>
@@ -460,6 +461,98 @@
 
         </div>
       </section>
+      <!-- ========================================
+          TESTIMONIALS
+          ======================================== -->
+
+      <section class="testimonials-home">
+
+        <div class="container testimonials-heading">
+
+          <p class="section-eyebrow">
+            Testimonials
+          </p>
+
+          <h2>
+            What students and parents say
+          </h2>
+
+          <p class="testimonials-intro">
+            Real experiences from learners and parents who have worked
+            with Suegné.
+          </p>
+
+        </div>
+
+
+        <div class="testimonial-carousel">
+
+          <div
+            class="testimonial-track"
+            id="testimonial-track"
+          ></div>
+
+        </div>
+
+
+        <div class="container testimonial-footer">
+
+          <a
+            href="testimonials.html"
+            class="button-secondary"
+          >
+            Read All Testimonials
+          </a>
+
+        </div>
+
+      </section>
     </main>
+    <!-- ========================================
+        TESTIMONIAL MODAL
+        ======================================== -->
+
+    <div
+      class="testimonial-modal"
+      id="testimonial-modal"
+      aria-hidden="true"
+    >
+
+      <div class="testimonial-modal-overlay"></div>
+
+
+      <div
+        class="testimonial-modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="testimonial-modal-name"
+      >
+
+        <button
+          class="testimonial-modal-close"
+          type="button"
+          aria-label="Close testimonial"
+        >
+          ×
+        </button>
+
+
+        <p
+          class="testimonial-modal-type"
+          id="testimonial-modal-type"
+        ></p>
+
+
+        <h3 id="testimonial-modal-name"></h3>
+
+
+        <div
+          class="testimonial-modal-text"
+          id="testimonial-modal-text"
+        ></div>
+
+      </div>
+
+    </div>
   </body>
 </html>
