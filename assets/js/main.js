@@ -51,3 +51,20 @@ document.addEventListener("keydown", function (event) {
     closeMenu();
   }
 });
+
+/* =========================================
+   Current Year
+   ========================================= */
+
+const currentYear =
+  document.querySelector(
+    "#current-year"
+  );
+
+
+if (currentYear) {
+
+  currentYear.textContent =
+    new Date().getFullYear();
+
+}

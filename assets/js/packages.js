@@ -60,9 +60,8 @@ function createPackageCard(packageData) {
 
       <div class="tutoring-tags">
         ${tagsHTML}
+        ${availabilityHTML}
       </div>
-
-      ${availabilityHTML}
 
       <h3>${packageData.title}</h3>
 

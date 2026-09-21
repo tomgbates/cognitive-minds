@@ -101,7 +101,10 @@ a {
 }
 
 .logo {
-  width: 190px;
+  width: 300px;
+  height: auto;
+
+  transform: translateY(8px);
 }
 
 .main-nav {
@@ -488,6 +491,36 @@ a {
   background-color: #ffffff;
 
   box-shadow: var(--card-shadow);
+
+  transition:
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+
+  .principle-card:hover {
+    transform:
+      translateY(-6px)
+      scale(1.015);
+
+    box-shadow:
+      0 18px 40px
+      rgba(20, 30, 35, 0.10);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .principle-card {
+    transition: none;
+  }
+
+  .principle-card:hover {
+    transform: none;
+  }
+
 }
 
 .principle-card-pink {
@@ -593,6 +626,8 @@ a {
   gap: 8px;
 
   margin-bottom: 26px;
+
+  align-items: center;
 }
 
 .tutoring-tag {
@@ -796,7 +831,7 @@ a {
 .availability-badge {
   display: inline-block;
 
-  margin-bottom: 22px;
+  margin: 0;
   padding: 7px 12px;
 
   border-radius: 50px;
@@ -1665,6 +1700,260 @@ body.modal-open {
 }
 
 /* =========================================
+   Final Call to Action
+   ========================================= */
+
+.final-cta {
+  padding: 95px 0;
+
+  background-color: var(--color-teal-soft);
+
+  border-top:
+    1px solid var(--color-border);
+}
+
+
+.final-cta-inner {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 1fr)
+    auto;
+
+  gap: 70px;
+
+  align-items: center;
+}
+
+
+.final-cta-content {
+  max-width: 750px;
+}
+
+
+.final-cta-content h2 {
+  margin: 0;
+
+  font-size:
+    clamp(38px, 4vw, 52px);
+
+  line-height: 1.1;
+
+  letter-spacing: -1.5px;
+}
+
+
+.final-cta-content > p:not(.section-eyebrow) {
+  margin: 24px 0 0;
+
+  max-width: 680px;
+
+  font-size: 18px;
+  line-height: 1.7;
+
+  color: var(--color-text-light);
+}
+
+
+/* CTA buttons */
+
+.final-cta-actions {
+  display: grid;
+
+  gap: 18px;
+
+  min-width: 220px;
+}
+
+
+.final-cta-primary {
+  text-align: center;
+}
+
+
+.final-cta-secondary {
+  text-align: center;
+}
+
+/* =========================================
+   Footer
+   ========================================= */
+
+.site-footer {
+  padding: 70px 0 28px;
+
+  background-color: #183739;
+
+  color: var(--color-white);
+}
+
+
+.footer-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.5fr
+    0.8fr
+    1fr
+    0.9fr;
+
+  gap: 60px;
+}
+
+
+/* Brand */
+
+.footer-brand {
+  max-width: 340px;
+}
+
+
+.footer-logo-link {
+  display: inline-block;
+}
+
+
+.footer-logo {
+  display: block;
+
+  width: 260px;
+  max-width: 100%;
+
+  /*
+    Your logo contains black text.
+
+    A white footer would normally make
+    this easier, but this filter lets us
+    use the existing logo on a dark footer.
+  */
+
+  filter:
+    brightness(0)
+    invert(1);
+}
+
+
+.footer-brand p {
+  margin: 24px 0 0;
+
+  font-size: 14px;
+  line-height: 1.7;
+
+  color:
+    rgba(255, 255, 255, 0.72);
+}
+
+
+/* Footer headings */
+
+.footer-column h3 {
+  margin: 0 0 20px;
+
+  font-size: 15px;
+
+  letter-spacing: 0.8px;
+
+  text-transform: uppercase;
+
+  color: var(--color-white);
+}
+
+
+/* Navigation */
+
+.footer-nav {
+  display: grid;
+
+  gap: 12px;
+}
+
+
+.footer-nav a,
+.footer-whatsapp {
+  width: fit-content;
+
+  color:
+    rgba(255, 255, 255, 0.78);
+
+  text-decoration: none;
+
+  transition:
+    color 0.2s ease;
+}
+
+
+.footer-nav a:hover,
+.footer-whatsapp:hover {
+  color: var(--color-white);
+}
+
+
+/* Tutoring info */
+
+.footer-info {
+  display: grid;
+
+  gap: 10px;
+}
+
+
+.footer-info p {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  color:
+    rgba(255, 255, 255, 0.72);
+}
+
+
+/* WhatsApp */
+
+.footer-whatsapp {
+  display: inline-block;
+
+  padding-bottom: 3px;
+
+  border-bottom:
+    2px solid var(--color-teal);
+
+  font-weight: 700;
+}
+
+
+.footer-number {
+  margin: 14px 0 0;
+
+  font-size: 14px;
+
+  color:
+    rgba(255, 255, 255, 0.68);
+}
+
+
+/* Bottom copyright */
+
+.footer-bottom {
+  margin-top: 55px;
+  padding-top: 24px;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.12);
+}
+
+
+.footer-bottom p {
+  margin: 0;
+
+  font-size: 12px;
+
+  color:
+    rgba(255, 255, 255, 0.55);
+}
+
+/* =========================================
    Responsive - Tablet
    ========================================= */
 
@@ -1676,7 +1965,10 @@ body.modal-open {
   }
 
   .logo {
-    width: 175px;
+    width: 280px;
+    height: auto;
+
+    transform: translateY(6px);
   }
 
   .menu-toggle {
@@ -1843,6 +2135,40 @@ body.modal-open {
   .testimonial-modal-content {
     padding: 42px;
   }
+
+  .final-cta {
+    padding: 80px 0;
+  }
+
+
+  .final-cta-inner {
+    grid-template-columns: 1fr;
+
+    gap: 38px;
+  }
+
+
+  .final-cta-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    min-width: 0;
+
+    gap: 18px;
+  }
+
+  .site-footer {
+    padding-top: 60px;
+  }
+
+
+  .footer-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+
+    gap: 50px;
+  }
 }
 
 /* =========================================
@@ -1856,7 +2182,10 @@ body.modal-open {
   }
 
   .logo {
-    width: 160px;
+    width: 260px;
+    height: auto;
+
+    transform: translateY(5px);
   }
 
   .header-container > .button-whatsapp {
@@ -2100,5 +2429,64 @@ body.modal-open {
     height: 350px;
 
     padding: 26px;
+  }
+
+  .final-cta {
+    padding: 70px 0;
+  }
+
+
+  .final-cta-content h2 {
+    font-size: 38px;
+  }
+
+
+  .final-cta-content > p:not(.section-eyebrow) {
+    font-size: 16px;
+  }
+
+
+  .final-cta-actions {
+    display: grid;
+
+    width: 100%;
+  }
+
+
+  .final-cta-primary,
+  .final-cta-secondary {
+    width: 100%;
+
+    text-align: center;
+  }
+
+  .site-footer {
+    padding:
+      55px 0
+      24px;
+  }
+
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+
+    gap: 36px;
+  }
+
+
+  .footer-logo {
+    width: 240px;
+  }
+
+
+  .footer-brand {
+    max-width: 100%;
+  }
+
+
+  .footer-bottom {
+    margin-top: 45px;
+
+    text-align: center;
   }
 }
