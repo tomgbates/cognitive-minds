@@ -1,79 +1,318 @@
-const tutoringGrid = document.querySelector("#tutoring-grid");
+/* =========================================================
+   COGNITIVE MINDS V2
+   TUTORING PACKAGES
 
+   DATA SOURCE:
+   assets/data/packages.json
+
+   PURPOSE:
+   - Load tutoring package information
+   - Feature the Small Group programme
+   - Show One-on-One as the secondary option
+   - Build pricing dynamically
+   - Support optional discounts
+========================================================= */
+
+
+/* =========================================================
+   01. PAGE MOUNT POINTS
+========================================================= */
+
+const featuredPackageMount =
+  document.querySelector(
+    "#featured-tutoring-package"
+  );
+
+
+const secondaryPackageMount =
+  document.querySelector(
+    "#secondary-tutoring-package"
+  );
+
+
+/* =========================================================
+   02. WHATSAPP
+========================================================= */
+
+/*
+   All enquiry buttons currently use the same
+   general Cognitive Minds WhatsApp enquiry.
+
+   We can later make these package-specific if wanted.
+*/
+
+const PACKAGE_WHATSAPP_URL =
+  "https://wa.me/27824423844?text=Hi%20Suegn%C3%A9%2C%20I%27m%20interested%20in%20enquiring%20about%20tutoring%20with%20Cognitive%20Minds.";
+
+
+/* =========================================================
+   03. LOAD PACKAGE DATA
+========================================================= */
 
 async function loadPackages() {
+
   try {
-    const response = await fetch("assets/data/packages.json");
+
+    const response =
+      await fetch(
+        "assets/data/packages.json"
+      );
+
 
     if (!response.ok) {
-      throw new Error("Could not load packages.json");
+
+      throw new Error(
+        "Could not load packages.json"
+      );
+
     }
 
-    const packages = await response.json();
 
-    renderPackages(packages);
+    const packages =
+      await response.json();
+
+
+    renderPackages(
+      packages
+    );
+
+
+    console.log(
+      "Tutoring packages loaded successfully:",
+      packages
+    );
+
+
   } catch (error) {
-    console.error("Error loading tutoring packages:", error);
+
+    console.error(
+      "Error loading tutoring packages:",
+      error
+    );
+
   }
+
 }
 
+
+/* =========================================================
+   04. CHOOSE WHICH PACKAGE GOES WHERE
+========================================================= */
 
 function renderPackages(packages) {
-  if (!tutoringGrid) {
-    return;
+
+  const activePackages =
+    packages.filter(
+      function (packageData) {
+
+        return (
+          packageData.active !== false
+        );
+
+      }
+    );
+
+
+  /*
+     PRIMARY PACKAGE
+
+     First preference:
+     id = "small-group"
+
+     Fallback:
+     pink package
+  */
+
+  const featuredPackage =
+    activePackages.find(
+      function (packageData) {
+
+        return (
+          packageData.id ===
+          "small-group"
+        );
+
+      }
+    ) ||
+
+    activePackages.find(
+      function (packageData) {
+
+        return (
+          packageData.theme ===
+          "pink"
+        );
+
+      }
+    );
+
+
+  /*
+     SECONDARY PACKAGE
+
+     First preference:
+     id = "one-on-one"
+
+     Otherwise:
+     first package that isn't the featured one.
+  */
+
+  const secondaryPackage =
+    activePackages.find(
+      function (packageData) {
+
+        return (
+          packageData.id ===
+          "one-on-one"
+        );
+
+      }
+    ) ||
+
+    activePackages.find(
+      function (packageData) {
+
+        return (
+          packageData !==
+          featuredPackage
+        );
+
+      }
+    );
+
+
+  /* ---------- Render featured ---------- */
+
+  if (
+    featuredPackageMount &&
+    featuredPackage
+  ) {
+
+    featuredPackageMount.innerHTML =
+      "";
+
+
+    featuredPackageMount.appendChild(
+      createPackageCard(
+        featuredPackage
+      )
+    );
+
   }
 
-  tutoringGrid.innerHTML = "";
 
-  const activePackages = packages.filter(function (packageData) {
-    return packageData.active;
-  });
+  /* ---------- Render secondary ---------- */
 
-  activePackages.forEach(function (packageData) {
-    const card = createPackageCard(packageData);
+  if (
+    secondaryPackageMount &&
+    secondaryPackage
+  ) {
 
-    tutoringGrid.appendChild(card);
-  });
+    secondaryPackageMount.innerHTML =
+      "";
+
+
+    secondaryPackageMount.appendChild(
+      createPackageCard(
+        secondaryPackage
+      )
+    );
+
+  }
+
 }
 
 
-function createPackageCard(packageData) {
-  const card = document.createElement("article");
+/* =========================================================
+   05. BUILD PACKAGE CARD
+========================================================= */
 
-  card.classList.add("tutoring-card");
+function createPackageCard(
+  packageData
+) {
 
-  if (packageData.theme === "pink") {
-    card.classList.add("tutoring-card-pink");
+  const card =
+    document.createElement(
+      "article"
+    );
+
+
+  card.classList.add(
+    "tutoring-card"
+  );
+
+
+  if (
+    packageData.theme ===
+    "pink"
+  ) {
+
+    card.classList.add(
+      "tutoring-card-pink"
+    );
+
   }
 
 
-  const tagsHTML = createTagsHTML(packageData);
-  const availabilityHTML = createAvailabilityHTML(packageData);
-  const featuresHTML = createFeaturesHTML(packageData);
-  const priceHTML = createPriceHTML(packageData);
-  const noteHTML = createNoteHTML(packageData);
-  const whatsappLink = createWhatsAppLink(packageData);
+  const tagsHTML =
+    createTagsHTML(
+      packageData
+    );
+
+
+  const availabilityHTML =
+    createAvailabilityHTML(
+      packageData
+    );
+
+
+  const featuresHTML =
+    createFeaturesHTML(
+      packageData
+    );
+
+
+  const priceHTML =
+    createPriceHTML(
+      packageData
+    );
+
+
+  const noteHTML =
+    createNoteHTML(
+      packageData
+    );
 
 
   card.innerHTML = `
+
     <div class="tutoring-card-top">
 
       <div class="tutoring-tags">
+
         ${tagsHTML}
+
         ${availabilityHTML}
+
       </div>
 
-      <h3>${packageData.title}</h3>
+
+      <h3>
+        ${escapeHTML(packageData.title)}
+      </h3>
+
 
       <p>
-        ${packageData.description}
+        ${escapeHTML(packageData.description)}
       </p>
 
     </div>
 
 
     <ul class="tutoring-features">
+
       ${featuresHTML}
+
     </ul>
 
 
@@ -84,8 +323,9 @@ function createPackageCard(packageData) {
 
       ${priceHTML}
 
+
       <a
-        href="${whatsappLink}"
+        href="${PACKAGE_WHATSAPP_URL}"
         class="tutoring-enquire"
         target="_blank"
         rel="noopener noreferrer"
@@ -96,68 +336,140 @@ function createPackageCard(packageData) {
     </div>
   `;
 
+
   return card;
+
 }
 
 
-function createTagsHTML(packageData) {
+/* =========================================================
+   06. PACKAGE TAGS
+========================================================= */
+
+function createTagsHTML(
+  packageData
+) {
+
+  if (
+    !Array.isArray(
+      packageData.tags
+    )
+  ) {
+
+    return "";
+
+  }
+
+
   return packageData.tags
-    .map(function (tag) {
+    .map(
+      function (tag) {
 
-      const pinkClass =
-        packageData.theme === "pink"
-          ? " tutoring-tag-pink"
-          : "";
+        const pinkClass =
+          packageData.theme ===
+          "pink"
+            ? " tutoring-tag-pink"
+            : "";
 
-      return `
-        <span class="tutoring-tag${pinkClass}">
-          ${tag}
-        </span>
-      `;
-    })
+
+        return `
+
+          <span class="tutoring-tag${pinkClass}">
+            ${escapeHTML(tag)}
+          </span>
+
+        `;
+
+      }
+    )
     .join("");
+
 }
 
 
-function createAvailabilityHTML(packageData) {
+/* =========================================================
+   07. AVAILABILITY BADGE
+========================================================= */
+
+function createAvailabilityHTML(
+  packageData
+) {
+
   if (
     !packageData.availability ||
-    packageData.availability.spacesRemaining === null ||
-    packageData.availability.spacesRemaining <= 0
+    packageData.availability
+      .spacesRemaining === null ||
+    packageData.availability
+      .spacesRemaining <= 0
   ) {
+
     return "";
+
   }
 
 
   const spaces =
-    packageData.availability.spacesRemaining;
+    packageData.availability
+      .spacesRemaining;
 
-  const spaceWord =
+
+  const word =
     spaces === 1
       ? "space"
       : "spaces";
 
 
   return `
-    <div class="availability-badge">
-      Only ${spaces} ${spaceWord} left
-    </div>
+
+    <span class="availability-badge">
+      Only ${spaces} ${word} left
+    </span>
+
   `;
+
 }
 
 
-function createFeaturesHTML(packageData) {
-  const features = [...packageData.features];
+/* =========================================================
+   08. PACKAGE FEATURES
+========================================================= */
 
-  let insertPosition = Math.min(2, features.length);
+function createFeaturesHTML(
+  packageData
+) {
+
+  const features =
+    Array.isArray(
+      packageData.features
+    )
+      ? [...packageData.features]
+      : [];
 
 
-  if (packageData.maxStudents !== null) {
+  /*
+     We insert dynamic details after the first
+     two ordinary features.
+  */
+
+  let insertPosition =
+    Math.min(
+      2,
+      features.length
+    );
+
+
+  /* ---------- Maximum learners ---------- */
+
+  if (
+    packageData.maxStudents !== null &&
+    packageData.maxStudents !== undefined
+  ) {
 
     const learnerWord =
       packageData.maxStudents === 1
         ? "learner"
         : "learners";
+
 
     features.splice(
       insertPosition,
@@ -165,13 +477,19 @@ function createFeaturesHTML(packageData) {
       `Maximum ${packageData.maxStudents} ${learnerWord}`
     );
 
+
     insertPosition++;
+
   }
 
 
+  /* ---------- Session duration ---------- */
+
   if (
     packageData.classesPerWeek !== null &&
-    packageData.durationHours !== null
+    packageData.classesPerWeek !== undefined &&
+    packageData.durationHours !== null &&
+    packageData.durationHours !== undefined
   ) {
 
     const classWord =
@@ -179,15 +497,20 @@ function createFeaturesHTML(packageData) {
         ? "class"
         : "classes";
 
+
     features.splice(
       insertPosition,
       0,
       `${packageData.classesPerWeek} × ${packageData.durationHours}-hour ${classWord} per week`
     );
 
+
     insertPosition++;
 
-  } else if (packageData.durationHours !== null) {
+  } else if (
+    packageData.durationHours !== null &&
+    packageData.durationHours !== undefined
+  ) {
 
     features.splice(
       insertPosition,
@@ -195,48 +518,99 @@ function createFeaturesHTML(packageData) {
       `${packageData.durationHours}-hour session`
     );
 
+
     insertPosition++;
+
   }
 
 
-  if (packageData.approxClassesPerYear !== null) {
+  /* ---------- Classes per year ---------- */
+
+  if (
+    packageData.approxClassesPerYear !== null &&
+    packageData.approxClassesPerYear !== undefined
+  ) {
 
     features.splice(
       insertPosition,
       0,
       `Approximately ${packageData.approxClassesPerYear} classes per year`
     );
+
   }
 
 
   return features
-    .map(function (feature) {
-      return `<li>${feature}</li>`;
-    })
+    .map(
+      function (feature) {
+
+        return `
+
+          <li>
+            ${escapeHTML(feature)}
+          </li>
+
+        `;
+
+      }
+    )
     .join("");
+
 }
 
 
-function createPriceHTML(packageData) {
+/* =========================================================
+   09. PRICING
+========================================================= */
 
-  if (packageData.pricing.type === "programme") {
-    return createProgrammePriceHTML(packageData);
+function createPriceHTML(
+  packageData
+) {
+
+  if (!packageData.pricing) {
+
+    return "";
+
   }
 
-  return createStandardPriceHTML(packageData);
+
+  if (
+    packageData.pricing.type ===
+    "programme"
+  ) {
+
+    return createProgrammePriceHTML(
+      packageData
+    );
+
+  }
+
+
+  return createStandardPriceHTML(
+    packageData
+  );
+
 }
 
 
-function createStandardPriceHTML(packageData) {
+/* =========================================================
+   10. STANDARD PRICE
+   Example: R275 / hour
+========================================================= */
 
-  const amount =
-    packageData.pricing.amount;
+function createStandardPriceHTML(
+  packageData
+) {
 
-  const unit =
-    packageData.pricing.unit;
+  const pricing =
+    packageData.pricing;
+
 
   const normalPrice =
-    formatPrice(amount);
+    formatPrice(
+      pricing.amount
+    );
+
 
   const discount =
     packageData.discount;
@@ -246,34 +620,44 @@ function createStandardPriceHTML(packageData) {
     discount &&
     discount.active === true &&
     discount.percent > 0 &&
-    amount > 0;
+    pricing.amount > 0;
 
+
+  /* ---------- No discount ---------- */
 
   if (!hasDiscount) {
+
     return `
+
       <div class="tutoring-price">
 
         <div class="price-standard">
 
-          <strong>${normalPrice}</strong>
+          <strong>
+            ${normalPrice}
+          </strong>
 
           <span class="price-unit">
-            / ${unit}
+            / ${escapeHTML(pricing.unit)}
           </span>
 
         </div>
 
       </div>
+
     `;
+
   }
 
 
-  const discountedAmount =
-    amount *
-    (1 - discount.percent / 100);
+  /* ---------- Discount ---------- */
 
-  const discountedPrice =
-    formatPrice(discountedAmount);
+  const discountedAmount =
+    pricing.amount *
+    (
+      1 -
+      discount.percent / 100
+    );
 
 
   const sessionText =
@@ -283,6 +667,7 @@ function createStandardPriceHTML(packageData) {
 
 
   return `
+
     <div class="tutoring-price tutoring-price-discounted">
 
       <div class="discount-row">
@@ -300,45 +685,52 @@ function createStandardPriceHTML(packageData) {
 
       <div class="current-price">
 
-        <strong>${discountedPrice}</strong>
+        <strong>
+          ${formatPrice(discountedAmount)}
+        </strong>
 
         <span class="price-unit">
-          / ${unit}
+          / ${escapeHTML(pricing.unit)}
         </span>
 
       </div>
 
     </div>
+
   `;
+
 }
 
 
-function createProgrammePriceHTML(packageData) {
+/* =========================================================
+   11. PROGRAMME PRICE
+   Example:
+   R4500 / term
+   R450 per class
+   Equivalent R150/hour
+   R1500/month × 12
+========================================================= */
+
+function createProgrammePriceHTML(
+  packageData
+) {
 
   const pricing =
     packageData.pricing;
+
 
   const discount =
     packageData.discount;
 
 
   const normalTermPrice =
-    formatPrice(pricing.perTerm);
-
-  const classPrice =
-    formatPrice(pricing.perClass);
-
-  const monthlyPrice =
-    formatPrice(pricing.monthly);
+    formatPrice(
+      pricing.perTerm
+    );
 
 
-  const hourlyEquivalent =
-    pricing.perClass /
-    packageData.durationHours;
-
-
-  const hourlyPrice =
-    formatPrice(hourlyEquivalent);
+  let displayedTermPrice =
+    pricing.perTerm;
 
 
   const hasDiscount =
@@ -348,24 +740,30 @@ function createProgrammePriceHTML(packageData) {
     discount.validForSessions > 0;
 
 
-  let mainPriceHTML = `
-    <div class="programme-main-price">
+  let discountHTML =
+    "";
 
-      <strong>${normalTermPrice}</strong>
 
-      <span class="price-unit">
-        / term
-      </span>
+  /*
+     The discount applies only to the specified
+     number of classes/sessions.
 
-    </div>
-  `;
+     Example:
 
+     R450/class
+     10% off
+     valid for 4 classes
+
+     discount = R45 × 4 = R180
+  */
 
   if (hasDiscount) {
 
     const discountPerClass =
       pricing.perClass *
-      (discount.percent / 100);
+      (
+        discount.percent / 100
+      );
 
 
     const totalDiscount =
@@ -373,7 +771,7 @@ function createProgrammePriceHTML(packageData) {
       discount.validForSessions;
 
 
-    const discountedTermPrice =
+    displayedTermPrice =
       pricing.perTerm -
       totalDiscount;
 
@@ -384,7 +782,8 @@ function createProgrammePriceHTML(packageData) {
       );
 
 
-    mainPriceHTML = `
+    discountHTML = `
+
       <div class="discount-row">
 
         <span class="discount-badge">
@@ -397,11 +796,34 @@ function createProgrammePriceHTML(packageData) {
 
       </div>
 
+    `;
 
-      <div class="programme-main-price">
+  }
+
+
+  const hourlyEquivalent =
+    (
+      pricing.perClass &&
+      packageData.durationHours
+    )
+      ? (
+          pricing.perClass /
+          packageData.durationHours
+        )
+      : null;
+
+
+  return `
+
+    <div class="tutoring-price">
+
+      ${discountHTML}
+
+
+      <div class="current-price">
 
         <strong>
-          ${formatPrice(discountedTermPrice)}
+          ${formatPrice(displayedTermPrice)}
         </strong>
 
         <span class="price-unit">
@@ -409,125 +831,216 @@ function createProgrammePriceHTML(packageData) {
         </span>
 
       </div>
-    `;
-  }
-
-
-  return `
-    <div class="programme-pricing">
-
-      ${mainPriceHTML}
 
 
       <div class="programme-breakdown">
 
-        <span>
-          ${classPrice} per ${packageData.durationHours}-hour class
-        </span>
+        ${
+          pricing.perClass
+            ? `
+              <span>
+                ${formatPrice(pricing.perClass)}
+                per ${packageData.durationHours}-hour class
+              </span>
+            `
+            : ""
+        }
 
-        <span>
-          Equivalent to ${hourlyPrice}/hour
-        </span>
+        ${
+          hourlyEquivalent
+            ? `
+              <span>
+                Equivalent to
+                ${formatPrice(hourlyEquivalent)}/hour
+              </span>
+            `
+            : ""
+        }
 
       </div>
 
 
-      <div class="programme-payment">
+      ${
+        pricing.monthly
+          ? `
+            <div class="payment-option">
 
-        <span class="programme-payment-label">
-          Full-year payment option
-        </span>
+              <span>
+                Full-year payment option
+              </span>
 
-        <strong>
-          ${monthlyPrice}/month × ${pricing.monthlyMonths}
-        </strong>
+              <strong>
+                ${formatPrice(pricing.monthly)}/month
+                × ${pricing.monthlyMonths}
+              </strong>
 
-      </div>
+            </div>
+          `
+          : ""
+      }
 
     </div>
+
   `;
+
 }
 
 
-function createDiscountSessionText(validForSessions) {
+/* =========================================================
+   12. DISCOUNT SESSION TEXT
+========================================================= */
+
+function createDiscountSessionText(
+  validForSessions
+) {
 
   if (
     !validForSessions ||
     validForSessions <= 0
   ) {
+
     return "";
+
   }
 
 
-  const sessionWord =
+  const word =
     validForSessions === 1
       ? "SESSION"
       : "SESSIONS";
 
 
   return (
-    ` · ${validForSessions} ${sessionWord}`
+    ` · ${validForSessions} ${word}`
   );
+
 }
 
 
-function createNoteHTML(packageData) {
+/* =========================================================
+   13. OPTIONAL PACKAGE NOTE
+========================================================= */
+
+function createNoteHTML(
+  packageData
+) {
 
   if (!packageData.note) {
+
     return "";
+
   }
 
+
   return `
-    <p class="package-note">
-      ${packageData.note}
+
+    <p class="tutoring-note">
+      ${escapeHTML(packageData.note)}
     </p>
+
   `;
+
 }
 
 
-function formatPrice(price) {
+/* =========================================================
+   14. PRICE FORMATTER
+========================================================= */
 
-  if (!price || price <= 0) {
+function formatPrice(
+  price
+) {
+
+  if (
+    price === null ||
+    price === undefined ||
+    price <= 0
+  ) {
+
     return "R xxx.xx";
+
   }
 
 
   const hasDecimals =
-    !Number.isInteger(price);
+    !Number.isInteger(
+      price
+    );
 
 
   const formattedNumber =
-    new Intl.NumberFormat("en-ZA", {
+    new Intl.NumberFormat(
+      "en-ZA",
+      {
 
-      minimumFractionDigits:
-        hasDecimals ? 2 : 0,
+        minimumFractionDigits:
+          hasDecimals
+            ? 2
+            : 0,
 
-      maximumFractionDigits:
-        2
+        maximumFractionDigits:
+          2
 
-    }).format(price);
-
-
-  return `R ${formattedNumber}`;
-}
-
-
-function createWhatsAppLink(packageData) {
-
-  const phoneNumber =
-    "27824423844";
-
-
-  const message =
-    `Hi Suegne, I'm interested in enquiring about ` +
-    `${packageData.title} with Cognitive Minds.`;
+      }
+    )
+    .format(price);
 
 
   return (
-    `https://wa.me/${phoneNumber}` +
-    `?text=${encodeURIComponent(message)}`
+    `R ${formattedNumber}`
   );
+
 }
 
+
+/* =========================================================
+   15. BASIC HTML SAFETY
+========================================================= */
+
+function escapeHTML(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+
+    return "";
+
+  }
+
+
+  return String(value)
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
 
 loadPackages();

@@ -1,36 +1,73 @@
+/* =========================================================
+   COGNITIVE MINDS V2
+   TESTIMONIALS
+
+   DATA SOURCE:
+   assets/data/testimonials/index.json
+
+   PURPOSE:
+   - Load testimonial JSON files
+   - Feature a parent testimonial separately
+   - Show student testimonials in moving carousel
+   - Create full-testimonial modal
+========================================================= */
+
+
+/* =========================================================
+   01. PAGE ELEMENTS
+========================================================= */
+
 const testimonialTrack =
-  document.querySelector("#testimonial-track");
+  document.querySelector(
+    "#testimonial-track"
+  );
+
 
 const testimonialCarousel =
-  document.querySelector(".testimonial-carousel");
+  document.querySelector(
+    ".testimonial-carousel"
+  );
 
 
-/* =========================================
-   Modal elements
-   ========================================= */
+const featuredParentMount =
+  document.querySelector(
+    "#featured-parent-testimonial"
+  );
+
+
+/* =========================================================
+   02. MODAL ELEMENTS
+========================================================= */
 
 const testimonialModal =
-  document.querySelector("#testimonial-modal");
-
-const testimonialModalOverlay =
-  testimonialModal?.querySelector(
-    ".testimonial-modal-overlay"
+  document.querySelector(
+    "#testimonial-modal"
   );
+
+
+const testimonialModalBackdrop =
+  testimonialModal?.querySelector(
+    ".testimonial-modal-backdrop"
+  );
+
 
 const testimonialModalClose =
   testimonialModal?.querySelector(
     ".testimonial-modal-close"
   );
 
+
 const testimonialModalType =
   document.querySelector(
     "#testimonial-modal-type"
   );
 
+
 const testimonialModalName =
   document.querySelector(
     "#testimonial-modal-name"
   );
+
 
 const testimonialModalText =
   document.querySelector(
@@ -38,84 +75,71 @@ const testimonialModalText =
   );
 
 
-/* =========================================
-   Carousel settings
-   ========================================= */
+/* =========================================================
+   03. CAROUSEL SETTINGS
 
-/*
-  How quickly the cards move.
+   Smaller speed = slower movement.
 
-  This means approximately 22 pixels
-  every second.
+   22 means approximately 22px per second.
+========================================================= */
 
-  Smaller = slower
-  Larger = faster
-*/
-
-const TESTIMONIAL_SPEED = 22;
+const TESTIMONIAL_SPEED =
+  22;
 
 
 /*
-  Largest size of the card when it reaches
-  the centre.
+   Maximum centre-card enlargement.
 
-  1.12 = 12% larger than normal.
+   1.10 = 10% larger.
 */
 
-const MAX_CARD_SCALE = 1.12;
+const MAX_CARD_SCALE =
+  1.10;
 
 
-/*
-  Current horizontal movement of the track.
-*/
+/* =========================================================
+   04. CAROUSEL STATE
+========================================================= */
 
-let carouselOffset = 0;
-
-
-/*
-  Width of one complete copy of all
-  testimonial cards.
-*/
-
-let testimonialSetWidth = 0;
+let carouselOffset =
+  0;
 
 
-/*
-  Used to calculate how much time passed
-  between animation frames.
-*/
-
-let previousAnimationTime = null;
+let testimonialSetWidth =
+  0;
 
 
-/*
-  Controls whether movement is paused.
-*/
-
-let carouselPaused = false;
-
-let carouselHovered = false;
-
-let carouselFocused = false;
-
-let testimonialModalOpen = false;
+let previousAnimationTime =
+  null;
 
 
-/*
-  Remember which Read More button opened
-  the modal so keyboard focus can return
-  there after closing it.
-*/
+let carouselHovered =
+  false;
 
-let lastFocusedElement = null;
 
-/*
-  The carousel can be paused for several
-  different reasons.
+let carouselFocused =
+  false;
 
-  This function checks all of them before
-  deciding whether movement is allowed.
-*/
+
+let testimonialModalOpen =
+  false;
+
+
+let carouselPaused =
+  false;
+
+
+let animationStarted =
+  false;
+
+
+let lastFocusedElement =
+  null;
+
+
+/* =========================================================
+   05. UPDATE PAUSE STATE
+========================================================= */
 
 function updateCarouselPauseState() {
 
@@ -123,23 +147,17 @@ function updateCarouselPauseState() {
     carouselHovered ||
     carouselFocused ||
     testimonialModalOpen;
+
 }
 
 
-/* =========================================
-   Load testimonial data
-   ========================================= */
+/* =========================================================
+   06. LOAD TESTIMONIAL DATA
+========================================================= */
 
 async function loadTestimonials() {
 
   try {
-
-    /*
-      First load index.json.
-
-      That tells us which testimonial files
-      exist.
-    */
 
     const indexResponse =
       await fetch(
@@ -152,6 +170,7 @@ async function loadTestimonials() {
       throw new Error(
         "Could not load testimonials/index.json"
       );
+
     }
 
 
@@ -159,12 +178,7 @@ async function loadTestimonials() {
       await indexResponse.json();
 
 
-    /*
-      Create one request for every testimonial
-      listed in index.json.
-    */
-
-    const testimonialRequests =
+    const requests =
       testimonialFiles.map(
         async function (fileName) {
 
@@ -179,49 +193,47 @@ async function loadTestimonials() {
             throw new Error(
               `Could not load testimonial: ${fileName}`
             );
+
           }
 
 
           return response.json();
+
         }
       );
 
 
-    /*
-      Wait until every testimonial has loaded.
-    */
-
     const testimonials =
       await Promise.all(
-        testimonialRequests
+        requests
       );
 
 
-    /*
-      Homepage only receives testimonials
-      which are active AND featured.
-    */
-
-    const featuredTestimonials =
+    const activeTestimonials =
       testimonials.filter(
         function (testimonial) {
 
           return (
-            testimonial.active === true &&
-            testimonial.featured === true
+            testimonial.active !== false
           );
+
         }
       );
 
 
-    console.log(
-      "Testimonials loaded successfully:",
-      featuredTestimonials
+    renderParentTestimonial(
+      activeTestimonials
     );
 
 
-    renderTestimonials(
-      featuredTestimonials
+    renderStudentTestimonials(
+      activeTestimonials
+    );
+
+
+    console.log(
+      "Testimonials loaded successfully:",
+      activeTestimonials
     );
 
 
@@ -233,65 +245,404 @@ async function loadTestimonials() {
     );
 
   }
+
 }
 
 
-/* =========================================
-   Build carousel
-   ========================================= */
+/* =========================================================
+   07. TESTIMONIAL TYPE HELPERS
+========================================================= */
 
-function renderTestimonials(testimonials) {
+function isParentTestimonial(
+  testimonial
+) {
+
+  return (
+    String(
+      testimonial.type || ""
+    )
+      .toLowerCase()
+      .includes("parent")
+  );
+
+}
+
+
+function isStudentTestimonial(
+  testimonial
+) {
+
+  return (
+    String(
+      testimonial.type || ""
+    )
+      .toLowerCase()
+      .includes("student")
+  );
+
+}
+
+
+/* =========================================================
+   08. FEATURED PARENT TESTIMONIAL
+========================================================= */
+
+function renderParentTestimonial(
+  testimonials
+) {
+
+  if (!featuredParentMount) {
+
+    return;
+
+  }
+
+
+  /*
+     Prefer a parent marked featured.
+
+     If none is marked featured,
+     simply use the first active parent.
+  */
+
+  const parent =
+    testimonials.find(
+      function (testimonial) {
+
+        return (
+          isParentTestimonial(
+            testimonial
+          ) &&
+          testimonial.featured === true
+        );
+
+      }
+    ) ||
+
+    testimonials.find(
+      function (testimonial) {
+
+        return isParentTestimonial(
+          testimonial
+        );
+
+      }
+    );
+
+
+  if (!parent) {
+
+    featuredParentMount.innerHTML =
+      "";
+
+    return;
+
+  }
+
+
+  featuredParentMount.innerHTML =
+    "";
+
+
+  const card =
+    document.createElement(
+      "article"
+    );
+
+
+  card.className =
+    "parent-testimonial-card";
+
+
+  /* ---------- Quote side ---------- */
+
+  const quoteSide =
+    document.createElement(
+      "div"
+    );
+
+
+  const quote =
+    document.createElement(
+      "p"
+    );
+
+
+  quote.className =
+    "parent-testimonial-quote";
+
+
+  quote.textContent =
+    `“${createParentPreview(parent.testimonial)}”`;
+
+
+  quoteSide.appendChild(
+    quote
+  );
+
+
+  /* ---------- Person / action side ---------- */
+
+  const detailsSide =
+    document.createElement(
+      "div"
+    );
+
+
+  const meta =
+    document.createElement(
+      "div"
+    );
+
+
+  meta.className =
+    "parent-testimonial-meta";
+
+
+  const name =
+    document.createElement(
+      "strong"
+    );
+
+
+  name.textContent =
+    parent.name;
+
+
+  const type =
+    document.createElement(
+      "span"
+    );
+
+
+  type.textContent =
+    parent.type;
+
+
+  meta.appendChild(
+    name
+  );
+
+
+  meta.appendChild(
+    type
+  );
+
+
+  const readMore =
+    document.createElement(
+      "button"
+    );
+
+
+  readMore.type =
+    "button";
+
+
+  readMore.className =
+    "testimonial-read-more";
+
+
+  readMore.textContent =
+    "Read full testimonial";
+
+
+  readMore.addEventListener(
+    "click",
+    function () {
+
+      openTestimonialModal(
+        parent,
+        readMore
+      );
+
+    }
+  );
+
+
+  detailsSide.appendChild(
+    meta
+  );
+
+
+  detailsSide.appendChild(
+    readMore
+  );
+
+
+  card.appendChild(
+    quoteSide
+  );
+
+
+  card.appendChild(
+    detailsSide
+  );
+
+
+  featuredParentMount.appendChild(
+    card
+  );
+
+}
+
+
+/* =========================================================
+   09. CREATE SHORT PARENT PREVIEW
+========================================================= */
+
+function createParentPreview(
+  testimonialText
+) {
+
+  if (!testimonialText) {
+
+    return "";
+
+  }
+
+
+  /*
+     If the testimonial contains paragraphs,
+     the first paragraph often makes the best
+     natural excerpt.
+  */
+
+  const paragraphs =
+    testimonialText
+      .trim()
+      .split(
+        /\n\s*\n/
+      );
+
+
+  const firstParagraph =
+    paragraphs[0]
+      .replace(
+        /\s+/g,
+        " "
+      )
+      .trim();
+
+
+  const maximumLength =
+    420;
+
+
+  if (
+    firstParagraph.length <=
+    maximumLength
+  ) {
+
+    return firstParagraph;
+
+  }
+
+
+  const shortened =
+    firstParagraph
+      .slice(
+        0,
+        maximumLength
+      );
+
+
+  const lastSpace =
+    shortened.lastIndexOf(
+      " "
+    );
+
+
+  return (
+    shortened
+      .slice(
+        0,
+        lastSpace
+      )
+      .trim() +
+    "…"
+  );
+
+}
+
+
+/* =========================================================
+   10. STUDENT TESTIMONIALS
+========================================================= */
+
+function renderStudentTestimonials(
+  testimonials
+) {
 
   if (
     !testimonialTrack ||
     !testimonialCarousel
   ) {
+
     return;
+
   }
 
 
-  testimonialTrack.innerHTML = "";
+  testimonialTrack.innerHTML =
+    "";
 
 
-  if (testimonials.length === 0) {
+  let students =
+    testimonials.filter(
+      function (testimonial) {
+
+        return (
+          isStudentTestimonial(
+            testimonial
+          ) &&
+          testimonial.featured === true
+        );
+
+      }
+    );
+
+
+  /*
+     If none have featured:true,
+     fall back to all active student reviews.
+  */
+
+  if (
+    students.length === 0
+  ) {
+
+    students =
+      testimonials.filter(
+        isStudentTestimonial
+      );
+
+  }
+
+
+  if (
+    students.length === 0
+  ) {
 
     testimonialCarousel.style.display =
       "none";
 
     return;
+
   }
 
 
-  /*
-    We create TWO identical sets.
-
-    SET 1:
-    Gaby Bella Sivi Liam...
-
-    SET 2:
-    Gaby Bella Sivi Liam...
-
-    This lets us make an endless loop.
-  */
-
   const firstSet =
     createTestimonialSet(
-      testimonials
+      students
     );
+
 
   const secondSet =
     createTestimonialSet(
-      testimonials
+      students
     );
 
-
-  /*
-    The second set is only there visually
-    to create the loop.
-
-    Screen readers do not need to read all
-    testimonials twice.
-  */
 
   secondSet.setAttribute(
     "aria-hidden",
@@ -303,21 +654,18 @@ function renderTestimonials(testimonials) {
     firstSet
   );
 
+
   testimonialTrack.appendChild(
     secondSet
   );
 
 
-  /*
-    Wait until the browser has actually
-    drawn the cards before measuring them.
-  */
-
   requestAnimationFrame(
     function () {
 
-      testimonialSetWidth =
-        firstSet.getBoundingClientRect().width;
+      measureCarousel(
+        firstSet
+      );
 
 
       truncateAllPreviews();
@@ -330,19 +678,22 @@ function renderTestimonials(testimonials) {
 
     }
   );
+
 }
 
 
-/* =========================================
-   Build one complete set
-   ========================================= */
+/* =========================================================
+   11. CREATE ONE TESTIMONIAL SET
+========================================================= */
 
 function createTestimonialSet(
   testimonials
 ) {
 
   const set =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
 
   set.className =
@@ -352,14 +703,10 @@ function createTestimonialSet(
   testimonials.forEach(
     function (testimonial) {
 
-      const card =
+      set.appendChild(
         createTestimonialCard(
           testimonial
-        );
-
-
-      set.appendChild(
-        card
+        )
       );
 
     }
@@ -367,77 +714,70 @@ function createTestimonialSet(
 
 
   return set;
+
 }
 
 
-/* =========================================
-   Build individual card
-   ========================================= */
+/* =========================================================
+   12. CREATE TESTIMONIAL CARD
+========================================================= */
 
 function createTestimonialCard(
   testimonial
 ) {
 
   const card =
-    document.createElement("article");
+    document.createElement(
+      "article"
+    );
 
 
   card.className =
     "testimonial-card";
 
 
-  /*
-    Decorative quotation mark.
-  */
+  /* ---------- Quote mark ---------- */
 
   const quoteMark =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
 
   quoteMark.className =
     "testimonial-quote-mark";
 
 
-  quoteMark.textContent = "“";
+  quoteMark.textContent =
+    "“";
 
 
-  /*
-    Short preview.
-
-    CSS is responsible for restricting
-    this to several lines.
-  */
+  /* ---------- Testimonial preview ---------- */
 
   const preview =
-    document.createElement("p");
+    document.createElement(
+      "p"
+    );
 
 
   preview.className =
     "testimonial-preview";
 
 
-  /*
-    Keep the complete original testimonial
-    attached to the element.
-
-    The visible text may be shortened later,
-    but we never lose the original.
-  */
-
   preview.dataset.fullText =
-    testimonial.testimonial;
+    testimonial.testimonial || "";
 
 
   preview.textContent =
-    testimonial.testimonial;
+    testimonial.testimonial || "";
 
 
-  /*
-    Student / parent information.
-  */
+  /* ---------- Person ---------- */
 
   const person =
-    document.createElement("div");
+    document.createElement(
+      "div"
+    );
 
 
   person.className =
@@ -445,15 +785,19 @@ function createTestimonialCard(
 
 
   const name =
-    document.createElement("strong");
+    document.createElement(
+      "strong"
+    );
 
 
   name.textContent =
-    testimonial.name;
+    testimonial.name || "";
 
 
   const details =
-    document.createElement("span");
+    document.createElement(
+      "span"
+    );
 
 
   if (testimonial.grade) {
@@ -464,25 +808,35 @@ function createTestimonialCard(
   } else {
 
     details.textContent =
-      testimonial.type;
+      testimonial.type || "";
 
   }
 
 
-  /*
-    Full testimonial button.
-  */
+  person.appendChild(
+    name
+  );
+
+
+  person.appendChild(
+    details
+  );
+
+
+  /* ---------- Read More ---------- */
 
   const readMore =
-    document.createElement("button");
-
-
-  readMore.className =
-    "testimonial-read-more";
+    document.createElement(
+      "button"
+    );
 
 
   readMore.type =
     "button";
+
+
+  readMore.className =
+    "testimonial-read-more";
 
 
   readMore.textContent =
@@ -502,72 +856,76 @@ function createTestimonialCard(
   );
 
 
-  person.appendChild(name);
-  person.appendChild(details);
+  card.appendChild(
+    quoteMark
+  );
 
 
-  card.appendChild(quoteMark);
-  card.appendChild(preview);
-  card.appendChild(person);
-  card.appendChild(readMore);
+  card.appendChild(
+    preview
+  );
+
+
+  card.appendChild(
+    person
+  );
+
+
+  card.appendChild(
+    readMore
+  );
 
 
   return card;
+
 }
 
-/* =========================================
-   Fit testimonial preview to card
-   ========================================= */
 
-function truncatePreview(preview) {
+/* =========================================================
+   13. TESTIMONIAL ELLIPSIS
+========================================================= */
+
+function truncatePreview(
+  preview
+) {
 
   const fullText =
     preview.dataset.fullText;
 
 
   if (!fullText) {
+
     return;
+
   }
 
 
   /*
-    Always restore the complete testimonial
-    before measuring it.
-
-    This is important when the window changes
-    size and we calculate the preview again.
+     Restore complete text before measuring.
   */
 
   preview.textContent =
     fullText;
 
+
   preview.classList.remove(
     "is-truncated"
   );
 
-  /*
-    If the whole testimonial already fits,
-    leave it untouched.
 
-    Short testimonials therefore receive
-    NO ellipsis.
+  /*
+     No truncation needed.
   */
 
   if (
     preview.scrollHeight <=
     preview.clientHeight + 1
   ) {
+
     return;
+
   }
 
-
-  /*
-    Split the testimonial into individual
-    words.
-
-    We will find the largest number of words
-    that fits within the available 7 lines.
-  */
 
   const words =
     fullText
@@ -575,17 +933,17 @@ function truncatePreview(preview) {
       .split(/\s+/);
 
 
-  let lowestFit = 0;
+  let lowestFit =
+    0;
+
+
   let highestPossible =
     words.length;
 
 
   /*
-    Binary search.
-
-    Instead of removing one word at a time,
-    this very quickly finds approximately
-    how much text will fit.
+     Binary search finds the maximum number of
+     complete words that fit into the preview.
   */
 
   while (
@@ -604,7 +962,10 @@ function truncatePreview(preview) {
 
     preview.textContent =
       words
-        .slice(0, middle)
+        .slice(
+          0,
+          middle
+        )
         .join(" ") +
       "…";
 
@@ -629,15 +990,12 @@ function truncatePreview(preview) {
   }
 
 
-  /*
-    Display the largest group of complete
-    words that fits, followed immediately
-    by the ellipsis.
-  */
-
   preview.textContent =
     words
-      .slice(0, lowestFit)
+      .slice(
+        0,
+        lowestFit
+      )
       .join(" ") +
     "…";
 
@@ -645,17 +1003,20 @@ function truncatePreview(preview) {
   preview.classList.add(
     "is-truncated"
   );
+
 }
 
 
-/* =========================================
-   Fit all testimonial previews
-   ========================================= */
+/* =========================================================
+   14. TRUNCATE ALL CARDS
+========================================================= */
 
 function truncateAllPreviews() {
 
   if (!testimonialTrack) {
+
     return;
+
   }
 
 
@@ -674,47 +1035,77 @@ function truncateAllPreviews() {
 
     }
   );
+
 }
 
-/* =========================================
-   Start continuous movement
-   ========================================= */
+
+/* =========================================================
+   15. MEASURE CAROUSEL
+========================================================= */
+
+function measureCarousel(
+  firstSet
+) {
+
+  if (!firstSet) {
+
+    return;
+
+  }
+
+
+  testimonialSetWidth =
+    firstSet
+      .getBoundingClientRect()
+      .width;
+
+}
+
+
+/* =========================================================
+   16. START CAROUSEL
+========================================================= */
 
 function startCarouselAnimation() {
 
-  /*
-    Some people disable animation through
-    accessibility settings on their device.
+  if (animationStarted) {
 
-    If they have done that, we should respect
-    their preference.
-  */
+    return;
 
-  const prefersReducedMotion =
+  }
+
+
+  const reduceMotion =
     window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
 
-  if (prefersReducedMotion) {
+  if (reduceMotion) {
 
-    testimonialCarousel.classList.add(
+    testimonialCarousel?.classList.add(
       "reduced-motion"
     );
 
     return;
+
   }
+
+
+  animationStarted =
+    true;
 
 
   requestAnimationFrame(
     animateCarousel
   );
+
 }
 
 
-/* =========================================
-   Animation loop
-   ========================================= */
+/* =========================================================
+   17. CAROUSEL ANIMATION LOOP
+========================================================= */
 
 function animateCarousel(
   currentTime
@@ -726,10 +1117,11 @@ function animateCarousel(
 
     previousAnimationTime =
       currentTime;
+
   }
 
 
-  const elapsedMilliseconds =
+  const elapsed =
     currentTime -
     previousAnimationTime;
 
@@ -739,40 +1131,29 @@ function animateCarousel(
 
 
   /*
-    Prevent a massive jump if someone changes
-    browser tabs and comes back later.
+     Prevent jumping after switching browser tabs.
   */
 
-  const safeElapsedTime =
+  const safeElapsed =
     Math.min(
-      elapsedMilliseconds,
+      elapsed,
       50
     );
 
 
   if (
     !carouselPaused &&
-    testimonialSetWidth > 0
+    testimonialSetWidth > 0 &&
+    testimonialTrack
   ) {
-
-    /*
-      Move left.
-
-      Negative X = left.
-    */
 
     carouselOffset -=
       TESTIMONIAL_SPEED *
-      (safeElapsedTime / 1000);
+      (
+        safeElapsed /
+        1000
+      );
 
-
-    /*
-      Once SET 1 has completely moved away,
-      jump forward exactly one set width.
-
-      SET 2 looks exactly like SET 1, so the
-      user cannot see this reset happen.
-    */
 
     if (
       carouselOffset <=
@@ -781,6 +1162,7 @@ function animateCarousel(
 
       carouselOffset +=
         testimonialSetWidth;
+
     }
 
 
@@ -790,23 +1172,19 @@ function animateCarousel(
   }
 
 
-  /*
-    Regardless of movement, keep updating
-    which card is closest to the centre.
-  */
-
   updateCardSpotlight();
 
 
   requestAnimationFrame(
     animateCarousel
   );
+
 }
 
 
-/* =========================================
-   Centre-card spotlight
-   ========================================= */
+/* =========================================================
+   18. CENTRE CARD SPOTLIGHT
+========================================================= */
 
 function updateCardSpotlight() {
 
@@ -814,7 +1192,9 @@ function updateCardSpotlight() {
     !testimonialCarousel ||
     !testimonialTrack
   ) {
+
     return;
+
   }
 
 
@@ -829,27 +1209,16 @@ function updateCardSpotlight() {
       .getBoundingClientRect();
 
 
-  /*
-    Exact horizontal centre of the
-    carousel viewport.
-  */
-
   const carouselCentre =
     carouselRect.left +
     carouselRect.width / 2;
 
 
-  /*
-    How far away a card can be before it
-    receives no enlargement.
-
-    Larger number = more gradual transition.
-  */
-
   const spotlightDistance =
     Math.min(
       500,
-      carouselRect.width * 0.45
+      carouselRect.width *
+      0.45
     );
 
 
@@ -865,101 +1234,82 @@ function updateCardSpotlight() {
         cardRect.width / 2;
 
 
-      const distanceFromCentre =
+      const distance =
         Math.abs(
           carouselCentre -
           cardCentre
         );
 
 
-      /*
-        focusAmount:
-
-        1 = directly in centre
-        0 = outside spotlight area
-      */
-
       const focusAmount =
         Math.max(
           0,
           1 -
-          distanceFromCentre /
+          distance /
           spotlightDistance
         );
 
 
-      /*
-        Gradually grow the card as it
-        approaches the centre.
-      */
-
       const scale =
         1 +
         focusAmount *
-        (MAX_CARD_SCALE - 1);
+        (
+          MAX_CARD_SCALE -
+          1
+        );
 
 
       card.style.transform =
         `scale(${scale})`;
 
 
-      /*
-        Slightly soften cards away from
-        the centre.
-
-        Never make them too faded.
-      */
-
       card.style.opacity =
-        0.72 +
-        focusAmount * 0.28;
+        String(
+          0.72 +
+          focusAmount *
+          0.28
+        );
 
-
-      /*
-        Bring centred cards forward.
-      */
 
       card.style.zIndex =
         String(
           Math.round(
-            focusAmount * 10
+            focusAmount *
+            10
           )
         );
 
     }
   );
+
 }
 
 
-/* =========================================
-   Pause carousel
-   ========================================= */
-
-/*
-  Mouse enters carousel.
-*/
+/* =========================================================
+   19. PAUSE ON HOVER
+========================================================= */
 
 testimonialCarousel?.addEventListener(
   "mouseenter",
   function () {
 
-    carouselHovered = true;
+    carouselHovered =
+      true;
+
 
     updateCarouselPauseState();
 
   }
 );
 
-
-/*
-  Mouse leaves carousel.
-*/
 
 testimonialCarousel?.addEventListener(
   "mouseleave",
   function () {
 
-    carouselHovered = false;
+    carouselHovered =
+      false;
+
 
     updateCarouselPauseState();
 
@@ -967,31 +1317,23 @@ testimonialCarousel?.addEventListener(
 );
 
 
-/*
-  Keyboard focus enters the carousel.
-*/
+/* =========================================================
+   20. PAUSE FOR KEYBOARD FOCUS
+========================================================= */
 
 testimonialCarousel?.addEventListener(
   "focusin",
   function () {
 
-    carouselFocused = true;
+    carouselFocused =
+      true;
+
 
     updateCarouselPauseState();
 
   }
 );
 
-
-/*
-  Keyboard focus leaves the carousel.
-
-  relatedTarget tells us where the focus
-  is moving to.
-
-  If it is still somewhere inside the
-  carousel, we keep it paused.
-*/
 
 testimonialCarousel?.addEventListener(
   "focusout",
@@ -1003,7 +1345,9 @@ testimonialCarousel?.addEventListener(
       )
     ) {
 
-      carouselFocused = false;
+      carouselFocused =
+        false;
+
 
       updateCarouselPauseState();
 
@@ -1013,9 +1357,9 @@ testimonialCarousel?.addEventListener(
 );
 
 
-/* =========================================
-   Open full testimonial
-   ========================================= */
+/* =========================================================
+   21. OPEN TESTIMONIAL MODAL
+========================================================= */
 
 function openTestimonialModal(
   testimonial,
@@ -1023,78 +1367,58 @@ function openTestimonialModal(
 ) {
 
   if (!testimonialModal) {
+
     return;
+
   }
 
-
-  /*
-    Stop carousel while reading.
-  */
-
-  testimonialModalOpen = true;
-
-  updateCarouselPauseState();
-
-
-  /*
-    Remember which button was clicked.
-  */
 
   lastFocusedElement =
     triggerElement;
 
 
+  testimonialModalType.textContent =
+    testimonial.type || "";
+
+
   testimonialModalName.textContent =
-    testimonial.name;
+    testimonial.name || "";
 
-
-  if (testimonial.grade) {
-
-    testimonialModalType.textContent =
-      `${testimonial.type} · ${testimonial.grade}`;
-
-  } else {
-
-    testimonialModalType.textContent =
-      testimonial.type;
-
-  }
-
-
-  /*
-    Remove any previous testimonial text.
-  */
 
   testimonialModalText.innerHTML =
     "";
 
 
   /*
-    Our JSON uses:
-
-    \n\n
-
-    to indicate paragraph breaks.
-
-    Convert those into actual HTML
-    paragraphs.
+     Preserve paragraph breaks from JSON.
   */
 
   const paragraphs =
-    testimonial.testimonial.split(
-      /\n\s*\n/
-    );
+    String(
+      testimonial.testimonial || ""
+    )
+      .trim()
+      .split(
+        /\n\s*\n/
+      );
 
 
   paragraphs.forEach(
     function (paragraphText) {
 
       const paragraph =
-        document.createElement("p");
+        document.createElement(
+          "p"
+        );
 
 
       paragraph.textContent =
-        paragraphText;
+        paragraphText
+          .replace(
+            /\s*\n\s*/g,
+            " "
+          )
+          .trim();
 
 
       testimonialModalText.appendChild(
@@ -1116,33 +1440,33 @@ function openTestimonialModal(
   );
 
 
-  /*
-    Prevent the webpage behind the popup
-    from scrolling.
-  */
-
   document.body.classList.add(
     "modal-open"
   );
 
 
-  /*
-    Move keyboard focus onto the close
-    button.
-  */
+  testimonialModalOpen =
+    true;
 
-  testimonialModalClose.focus();
+
+  updateCarouselPauseState();
+
+
+  testimonialModalClose?.focus();
+
 }
 
 
-/* =========================================
-   Close modal
-   ========================================= */
+/* =========================================================
+   22. CLOSE TESTIMONIAL MODAL
+========================================================= */
 
 function closeTestimonialModal() {
 
   if (!testimonialModal) {
+
     return;
+
   }
 
 
@@ -1162,45 +1486,52 @@ function closeTestimonialModal() {
   );
 
 
-  testimonialModalOpen = false;
+  testimonialModalOpen =
+    false;
 
 
   /*
-    Return keyboard focus to the button
-    that originally opened the testimonial.
+     Restore focus to the original Read More button.
   */
 
   if (lastFocusedElement) {
 
     lastFocusedElement.focus();
 
-    lastFocusedElement = null;
-
   }
 
 
   /*
-    Returning focus to a Read More button
-    triggers the carousel's focusin event.
+     The focus event above briefly pauses the carousel.
 
-    Wait until that has happened, then clear
-    the temporary focus pause so the carousel
-    can resume automatically.
+     Clear that state on the next browser frame so
+     the carousel resumes immediately after closing.
   */
 
   requestAnimationFrame(
     function () {
 
-      carouselFocused = false;
+      carouselFocused =
+        false;
+
+
+      carouselHovered =
+        false;
+
 
       updateCarouselPauseState();
 
+
+      lastFocusedElement =
+        null;
+
     }
   );
+
 }
 
 
-/* Close button */
+/* ---------- X button ---------- */
 
 testimonialModalClose?.addEventListener(
   "click",
@@ -1208,15 +1539,15 @@ testimonialModalClose?.addEventListener(
 );
 
 
-/* Clicking the dark background closes it */
+/* ---------- Click outside modal ---------- */
 
-testimonialModalOverlay?.addEventListener(
+testimonialModalBackdrop?.addEventListener(
   "click",
   closeTestimonialModal
 );
 
 
-/* Escape key closes it */
+/* ---------- Escape key ---------- */
 
 document.addEventListener(
   "keydown",
@@ -1236,9 +1567,10 @@ document.addEventListener(
   }
 );
 
-/* =========================================
-   Recalculate after window resize
-   ========================================= */
+
+/* =========================================================
+   23. RECALCULATE AFTER RESIZE
+========================================================= */
 
 window.addEventListener(
   "resize",
@@ -1248,21 +1580,23 @@ window.addEventListener(
       function () {
 
         const firstSet =
-          testimonialTrack?.querySelector(
-            ".testimonial-set"
-          );
+          testimonialTrack
+            ?.querySelector(
+              ".testimonial-set"
+            );
 
 
         if (firstSet) {
 
-          testimonialSetWidth =
+          measureCarousel(
             firstSet
-              .getBoundingClientRect()
-              .width;
+          );
 
         }
-        
+
+
         truncateAllPreviews();
+
 
         updateCardSpotlight();
 
@@ -1272,8 +1606,9 @@ window.addEventListener(
   }
 );
 
-/* =========================================
-   Start
-   ========================================= */
+
+/* =========================================================
+   START
+========================================================= */
 
 loadTestimonials();
