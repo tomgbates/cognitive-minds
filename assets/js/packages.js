@@ -391,42 +391,36 @@ function createTagsHTML(
    07. AVAILABILITY BADGE
 ========================================================= */
 
-function createAvailabilityHTML(
-  packageData
-) {
+function createAvailabilityHTML(packageData) {
+    const availability = packageData.availability;
 
-  if (
-    !packageData.availability ||
-    packageData.availability
-      .spacesRemaining === null ||
-    packageData.availability
-      .spacesRemaining <= 0
-  ) {
+    if (!availability) {
+        return "";
+    }
+
+    // Use a custom availability message if one exists
+    if (availability.label) {
+        return `
+            <span class="availability-badge">
+                ${availability.label}
+            </span>
+        `;
+    }
+
+    // Fallback for packages that still use a numerical space count
+    if (
+        typeof availability.spacesRemaining === "number" &&
+        availability.spacesRemaining > 0
+    ) {
+        return `
+            <span class="availability-badge">
+                Only ${availability.spacesRemaining}
+                ${availability.spacesRemaining === 1 ? "space" : "spaces"} left
+            </span>
+        `;
+    }
 
     return "";
-
-  }
-
-
-  const spaces =
-    packageData.availability
-      .spacesRemaining;
-
-
-  const word =
-    spaces === 1
-      ? "space"
-      : "spaces";
-
-
-  return `
-
-    <span class="availability-badge">
-      Only ${spaces} ${word} left
-    </span>
-
-  `;
-
 }
 
 
@@ -474,7 +468,7 @@ function createFeaturesHTML(
     features.splice(
       insertPosition,
       0,
-      `Maximum ${packageData.maxStudents} ${learnerWord}`
+      `Maximum ${packageData.maxStudents} ${learnerWord} per class`
     );
 
 

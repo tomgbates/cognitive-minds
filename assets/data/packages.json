@@ -19,7 +19,7 @@
     },
 
     "availability": {
-      "spacesRemaining": 2
+      "label": "Limited availability"
     },
 
     "maxStudents": null,
@@ -31,7 +31,7 @@
       "Grades 10–12",
       "Physics and Chemistry",
       "Individual attention",
-      "CAPS, IEB, Cambridge and more"
+      "Impaq, CAPS, IEB and more"
     ],
 
     "discount": {

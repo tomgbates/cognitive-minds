@@ -25,6 +25,14 @@
 ========================================================= */
 
 
+/* ========================================
+   TEST HANDWRITTEN FONTS
+   Remove unused fonts once final choice is made
+   ======================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600&display=swap");
+
+
 /* =========================================================
    00. DESIGN SYSTEM / VARIABLES
 ========================================================= */
@@ -95,7 +103,6 @@
     --transition-normal: 0.3s ease;
 
 }
-
 
 /* =========================================================
    01. GLOBAL FOUNDATIONS
@@ -564,11 +571,12 @@ a:focus-visible {
 
     color: var(--color-primary);
 
-    font-size: clamp(31px, 3vw, 42px);
+    font-family: "Caveat", cursive;
+    font-size: clamp(44px, 4vw, 58px);
+    font-weight: 400;
+    line-height: 1;
 
-    line-height: 1.15;
-
-    letter-spacing: -0.035em;
+    letter-spacing: 0;
 }
 
 
@@ -684,16 +692,32 @@ a:focus-visible {
     line-height: 1;
 }
 
-
 .hero-proof-result {
-    margin-bottom: 10px;
+    margin: 0 0 16px;
 
     color: var(--color-primary);
 
-    font-size: 58px;
-    font-weight: 800;
-
     line-height: 1;
+}
+
+.hero-proof-result-number {
+    display: block;
+
+    font-size: clamp(52px, 5vw, 68px);
+    font-weight: 800;
+    line-height: 0.95;
+}
+
+.hero-proof-result-label {
+    display: block;
+
+    margin-top: 8px;
+
+    max-width: 280px;
+
+    font-size: clamp(24px, 2.2vw, 32px);
+    font-weight: 800;
+    line-height: 1.05;
 }
 
 
@@ -1436,46 +1460,40 @@ a:focus-visible {
    09. MEET SUEGNÉ
 ========================================================= */
 
-.meet-suegne {
-    padding: var(--section-padding) 0;
+/* ========================================
+   MEET SUEGNÉ / ACADEMIC AUTHORITY
+   ======================================== */
+
+.suegne-section {
+    padding: 110px 0;
+    background-color: #ffffff;
 }
 
 
-.meet-suegne-container {
+/* ========================================
+   MAIN SUEGNÉ LAYOUT
+   ======================================== */
+
+.suegne-layout {
     display: grid;
 
     grid-template-columns:
-        minmax(280px, 0.8fr)
-        minmax(0, 1.1fr)
-        minmax(330px, 0.9fr);
+        minmax(280px, 340px)
+        minmax(0, 1fr);
 
-    gap: 55px;
+    gap: 70px;
 
-    align-items: center;
+    align-items: start;
 }
 
 
-/* ---------- Suegné image ---------- */
+/* ========================================
+   SUEGNÉ PHOTO
+   ======================================== */
 
 .suegne-photo-wrap {
     width: 100%;
 }
-
-
-.suegne-photo,
-.suegne-photo-placeholder {
-    width: 100%;
-
-    aspect-ratio: 4 / 5;
-
-    border-radius: var(--radius-large);
-}
-
-
-.suegne-photo {
-    object-fit: cover;
-}
-
 
 .suegne-photo-placeholder {
     display: flex;
@@ -1483,46 +1501,62 @@ a:focus-visible {
     align-items: center;
     justify-content: center;
 
-    padding: 30px;
+    width: 100%;
 
-    border:
-        1px dashed
-        var(--color-border);
+    aspect-ratio: 4 / 5;
 
-    color: var(--color-text-light);
+    border: 1px dashed #d8e4e4;
+    border-radius: 28px;
 
     background:
-        radial-gradient(
-            circle at 30% 20%,
-            rgba(255, 225, 235, 0.75),
-            transparent 42%
-        ),
-        radial-gradient(
-            circle at 75% 75%,
-            rgba(210, 243, 242, 0.9),
-            transparent 45%
-        ),
-        #f8fbfb;
+        linear-gradient(
+            135deg,
+            rgba(245, 212, 225, 0.35),
+            rgba(218, 245, 245, 0.55)
+        );
 
-    text-align: center;
+    color: var(--color-text-muted);
 }
 
 
-/* ---------- Suegné copy ---------- */
+/* ========================================
+   SUEGNÉ MAIN CONTENT
+   ======================================== */
 
-.suegne-content p:not(.eyebrow) {
-    color: var(--color-text-soft);
+.suegne-content {
+    min-width: 0;
+}
 
-    font-size: 16px;
+.suegne-title {
+    max-width: 760px;
+
+    margin: 12px 0 28px;
+
+    font-size: clamp(38px, 3.2vw, 50px);
+    line-height: 1.06;
+
+    letter-spacing: -0.035em;
+}
+
+.suegne-copy {
+    max-width: 720px;
+
+    margin-bottom: 42px;
+}
+
+.suegne-copy p {
+    margin-bottom: 18px;
+
+    font-size: 17px;
+    line-height: 1.7;
+
+    color: var(--color-text-muted);
 }
 
 
-.suegne-content .button-secondary {
-    margin-top: 12px;
-}
-
-
-/* ---------- Credentials ---------- */
+/* ========================================
+   ACADEMIC CREDENTIAL GRID
+   ======================================== */
 
 .credentials-grid {
     display: grid;
@@ -1531,65 +1565,148 @@ a:focus-visible {
         repeat(2, minmax(0, 1fr));
 
     gap: 18px;
+
+    margin-bottom: 30px;
 }
 
 
+/* ========================================
+   ACADEMIC CREDENTIAL CARDS
+   ======================================== */
+
 .credential-card {
-    min-height: 205px;
+    min-height: 210px;
 
     padding: 28px;
 
-    border: 1px solid var(--color-border);
-    border-radius: 22px;
+    border: 1px solid #dce8e8;
+    border-radius: 24px;
 
-    background-color: var(--color-background-soft);
+    background-color: #f8fbfb;
 }
-
 
 .credential-card-pink {
-    border-color: var(--color-pink-border);
+    border-color: #f2d5df;
 
-    background-color: var(--color-pink-soft);
+    background-color: #fff8fa;
 }
-
 
 .credential-value {
     display: block;
 
-    margin-bottom: 26px;
+    margin-bottom: 22px;
 
     color: var(--color-primary);
 
-    font-size: 42px;
+    font-size: 34px;
     font-weight: 800;
-
     line-height: 1;
 }
 
-
 .credential-card-pink .credential-value {
-    color: var(--color-pink);
+    color: #d45783;
 }
-
-
-.credential-value-text {
-    font-size: 28px;
-}
-
 
 .credential-card h3 {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 1.1;
+}
+
+.credential-card p {
+    margin: 0;
+
+    font-size: 14px;
+    line-height: 1.55;
+
+    color: var(--color-text-muted);
 }
 
 
-.credential-card p {
-    margin-bottom: 0;
+/* ========================================
+   MORE ABOUT SUEGNÉ LINK
+   ======================================== */
 
-    color: var(--color-text-soft);
+.suegne-more-link {
+    display: inline-block;
+}
 
-    font-size: 13px;
+/* ---------- Suegné section heading ---------- */
+
+.suegne-content .suegne-title {
+    max-width: 700px;
+
+    margin: 10px 0 26px;
+
+    font-size: clamp(36px, 2.8vw, 44px);
+    line-height: 1.07;
+
+    letter-spacing: -0.03em;
+}
+
+
+/* ========================================
+   TABLET - MEET SUEGNÉ
+   ======================================== */
+
+@media (max-width: 900px) {
+
+    .suegne-section {
+        padding: 80px 0;
+    }
+
+    .suegne-layout {
+        grid-template-columns: 1fr;
+
+        gap: 46px;
+    }
+
+    .suegne-photo-wrap {
+        max-width: 420px;
+    }
+
+    .suegne-title {
+        max-width: 700px;
+    }
+
+}
+
+
+/* ========================================
+   MOBILE - MEET SUEGNÉ
+   ======================================== */
+
+@media (max-width: 600px) {
+
+    .suegne-section {
+        padding: 64px 0;
+    }
+
+    .suegne-layout {
+        gap: 36px;
+    }
+
+    .suegne-title {
+        font-size: 38px;
+
+        line-height: 1.05;
+    }
+
+    .suegne-copy p {
+        font-size: 16px;
+    }
+
+    .credentials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .credential-card {
+        min-height: 0;
+
+        padding: 24px;
+    }
+
 }
 
 
@@ -3182,3 +3299,20 @@ body.modal-open {
             rgba(255, 247, 250, 1)
         );
 }
+
+/* ========================================
+   WHATSAPP BUTTON OVERRIDES
+   ======================================== */
+
+a.button.button-primary.whatsapp-button {
+    background-color: #25D366;
+    border-color: #25D366;
+    color: #ffffff;
+}
+
+a.button.button-primary.whatsapp-button:hover {
+    background-color: #1fbd5a;
+    border-color: #1fbd5a;
+    color: #ffffff;
+}
+
