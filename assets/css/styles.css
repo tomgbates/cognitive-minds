@@ -1455,6 +1455,131 @@ a:focus-visible {
     color: var(--color-text-light);
 }
 
+/* ========================================
+   PARENT TESTIMONIAL SLIDER
+   ======================================== */
+
+.parent-testimonial-slider {
+    width: 100%;
+}
+
+
+/* ---------- Swipeable track ---------- */
+
+.parent-testimonial-track {
+    display: grid;
+
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+
+    overflow-x: auto;
+
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+
+    scrollbar-width: none;
+}
+
+.parent-testimonial-track::-webkit-scrollbar {
+    display: none;
+}
+
+
+/* ---------- Individual slide ---------- */
+
+.parent-testimonial-slide {
+    min-width: 0;
+
+    scroll-snap-align: start;
+
+    padding: 2px;
+}
+
+
+/* ---------- Slider controls ---------- */
+
+.parent-testimonial-controls {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 14px;
+
+    margin-top: 22px;
+}
+
+
+/* ---------- Left / right arrows ---------- */
+
+.parent-testimonial-arrow {
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+
+    padding: 0;
+
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+
+    background-color: #ffffff;
+
+    color: var(--color-primary);
+
+    font-size: 20px;
+
+    cursor: pointer;
+
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.parent-testimonial-arrow:hover {
+    transform: translateY(-2px);
+
+    border-color: var(--color-primary);
+}
+
+
+/* ---------- Navigation dots ---------- */
+
+.parent-testimonial-dots {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+.parent-testimonial-dot {
+    width: 9px;
+    height: 9px;
+
+    padding: 0;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: #d7e7e8;
+
+    cursor: pointer;
+
+    transition:
+        transform var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.parent-testimonial-dot.is-active {
+    background-color: var(--color-primary);
+
+    transform: scale(1.25);
+}
+
 
 /* =========================================================
    09. MEET SUEGNÉ
@@ -1515,7 +1640,7 @@ a:focus-visible {
             rgba(218, 245, 245, 0.55)
         );
 
-    color: var(--color-text-muted);
+    color: var(--color-text-soft);
 }
 
 
@@ -1550,7 +1675,7 @@ a:focus-visible {
     font-size: 17px;
     line-height: 1.7;
 
-    color: var(--color-text-muted);
+    color: var(--color-text-soft);
 }
 
 
@@ -1620,7 +1745,7 @@ a:focus-visible {
     font-size: 14px;
     line-height: 1.55;
 
-    color: var(--color-text-muted);
+    color: var(--color-text-soft);
 }
 
 
@@ -1644,71 +1769,6 @@ a:focus-visible {
 
     letter-spacing: -0.03em;
 }
-
-
-/* ========================================
-   TABLET - MEET SUEGNÉ
-   ======================================== */
-
-@media (max-width: 900px) {
-
-    .suegne-section {
-        padding: 80px 0;
-    }
-
-    .suegne-layout {
-        grid-template-columns: 1fr;
-
-        gap: 46px;
-    }
-
-    .suegne-photo-wrap {
-        max-width: 420px;
-    }
-
-    .suegne-title {
-        max-width: 700px;
-    }
-
-}
-
-
-/* ========================================
-   MOBILE - MEET SUEGNÉ
-   ======================================== */
-
-@media (max-width: 600px) {
-
-    .suegne-section {
-        padding: 64px 0;
-    }
-
-    .suegne-layout {
-        gap: 36px;
-    }
-
-    .suegne-title {
-        font-size: 38px;
-
-        line-height: 1.05;
-    }
-
-    .suegne-copy p {
-        font-size: 16px;
-    }
-
-    .credentials-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .credential-card {
-        min-height: 0;
-
-        padding: 24px;
-    }
-
-}
-
 
 /* =========================================================
    10. STUDENT TESTIMONIALS
@@ -2623,22 +2683,18 @@ body.modal-open {
         padding: 44px;
     }
 
-
-    /* -----------------------------------------------------
-       Problems
-    ----------------------------------------------------- */
-
-    .problem-grid {
-        grid-template-columns: 1fr;
-    }
-
-
     /* -----------------------------------------------------
        Method
     ----------------------------------------------------- */
 
     .principles-grid {
-        grid-template-columns: 1fr;
+    grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+
+    .principle-card:last-child {
+        grid-column: 1 / -1;
     }
 
 
@@ -2662,27 +2718,57 @@ body.modal-open {
        Meet Suegné
     ----------------------------------------------------- */
 
-    .meet-suegne-container {
-        grid-template-columns:
-            minmax(240px, 0.75fr)
-            minmax(0, 1.25fr);
+    .suegne-section {
+        padding: 80px 0;
+    }
 
-        align-items: start;
+
+    .suegne-layout {
+        grid-template-columns: 1fr;
+
+        gap: 42px;
+    }
+
+
+    .suegne-photo-wrap {
+        width: 100%;
+        max-width: 380px;
+    }
+
+
+    .suegne-content {
+        width: 100%;
+        max-width: none;
+    }
+
+
+    .suegne-content .suegne-title {
+        max-width: 700px;
+
+        font-size: 36px;
+        line-height: 1.08;
+    }
+
+
+    .suegne-copy {
+        max-width: 700px;
+
+        margin-bottom: 34px;
     }
 
 
     .credentials-grid {
-        grid-column: 1 / -1;
-
         grid-template-columns:
-            repeat(4, 1fr);
+            repeat(2, minmax(0, 1fr));
+
+        gap: 16px;
     }
 
 
     .credential-card {
-        min-height: 185px;
+        min-height: 0;
 
-        padding: 22px;
+        padding: 24px;
     }
 
 
@@ -2791,7 +2877,7 @@ body.modal-open {
 
 
     .logo {
-        width: 230px;
+        width: min(230px, 62vw);
 
         transform:
             translateY(5px);
@@ -2947,6 +3033,10 @@ body.modal-open {
        Problems
     ----------------------------------------------------- */
 
+    .problem-grid {
+        grid-template-columns: 1fr;
+    }
+
     .problem-card {
         padding: 28px;
     }
@@ -2960,6 +3050,15 @@ body.modal-open {
     /* -----------------------------------------------------
        Method
     ----------------------------------------------------- */
+
+    .principles-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .principle-card:last-child {
+        grid-column: auto;
+    }
 
     .principle-card {
         padding: 28px;
@@ -2986,50 +3085,83 @@ body.modal-open {
 
 
     /* -----------------------------------------------------
-       Meet Suegné
-    ----------------------------------------------------- */
+        Meet Suegné
+        ----------------------------------------------------- */
 
-    .meet-suegne-container {
-        grid-template-columns: 1fr;
-
-        gap: 38px;
-    }
+        .suegne-section {
+            padding: 66px 0;
+        }
 
 
-    .suegne-photo,
-    .suegne-photo-placeholder {
-        max-height: 520px;
-    }
+        .suegne-layout {
+            grid-template-columns: 1fr;
+
+            gap: 32px;
+        }
 
 
-    .credentials-grid {
-        grid-column: auto;
+        .suegne-photo-wrap {
+            width: 100%;
+            max-width: 330px;
 
-        grid-template-columns:
-            repeat(2, 1fr);
-
-        gap: 14px;
-    }
+            margin-inline: auto;
+        }
 
 
-    .credential-card {
-        min-height: 180px;
+        .suegne-content .suegne-title {
+            max-width: none;
 
-        padding: 20px;
-    }
+            margin:
+                10px 0
+                24px;
 
-
-    .credential-value {
-        margin-bottom: 20px;
-
-        font-size: 34px;
-    }
+            font-size: 32px;
+            line-height: 1.08;
+        }
 
 
-    .credential-value-text {
-        font-size: 24px;
-    }
+        .suegne-copy {
+            margin-bottom: 30px;
+        }
 
+
+        .suegne-copy p {
+            font-size: 16px;
+            line-height: 1.65;
+        }
+
+
+        .credentials-grid {
+            grid-template-columns: 1fr;
+
+            gap: 14px;
+        }
+
+
+        .credential-card {
+            min-height: 0;
+
+            padding: 22px;
+        }
+
+
+        .credential-value {
+            margin-bottom: 12px;
+
+            font-size: 30px;
+        }
+
+
+        .credential-card h3 {
+            margin-bottom: 8px;
+
+            font-size: 19px;
+        }
+
+
+        .credential-card p {
+            font-size: 14px;
+        }
 
     /* -----------------------------------------------------
        Student testimonials

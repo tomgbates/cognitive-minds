@@ -1,0 +1,9 @@
+{
+  "id": "cameron",
+  "name": "Cameron",
+  "type": "Student",
+  "grade": null,
+  "testimonial": "She is very friendly and makes the work much easier to understand. I can ask questions whenever I am confused, and she is always willing to help.",
+  "featured": true,
+  "active": true
+}

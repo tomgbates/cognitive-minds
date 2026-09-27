@@ -284,205 +284,520 @@ function isStudentTestimonial(
 
 
 /* =========================================================
-   08. FEATURED PARENT TESTIMONIAL
+   08. FEATURED PARENT TESTIMONIAL SLIDER
+   - Shows one parent testimonial at a time
+   - Arrow navigation on desktop
+   - Swipe / horizontal scroll on touch devices
+   - Automatically supports future parent testimonials
 ========================================================= */
 
 function renderParentTestimonial(
-  testimonials
+    testimonials
 ) {
 
-  if (!featuredParentMount) {
-
-    return;
-
-  }
+    if (!featuredParentMount) {
+        return;
+    }
 
 
-  /*
-     Prefer a parent marked featured.
+    /* -----------------------------------------
+       Get featured parent testimonials
+       ----------------------------------------- */
 
-     If none is marked featured,
-     simply use the first active parent.
-  */
+    let parents =
+        testimonials.filter(
+            function (testimonial) {
 
-  const parent =
-    testimonials.find(
-      function (testimonial) {
+                return (
+                    isParentTestimonial(testimonial) &&
+                    testimonial.featured === true
+                );
 
-        return (
-          isParentTestimonial(
-            testimonial
-          ) &&
-          testimonial.featured === true
+            }
         );
 
-      }
-    ) ||
 
-    testimonials.find(
-      function (testimonial) {
+    /*
+       If no parent testimonials are marked featured,
+       fall back to all active parent testimonials.
+    */
 
-        return isParentTestimonial(
-          testimonial
-        );
+    if (parents.length === 0) {
 
-      }
-    );
-
-
-  if (!parent) {
-
-    featuredParentMount.innerHTML =
-      "";
-
-    return;
-
-  }
-
-
-  featuredParentMount.innerHTML =
-    "";
-
-
-  const card =
-    document.createElement(
-      "article"
-    );
-
-
-  card.className =
-    "parent-testimonial-card";
-
-
-  /* ---------- Quote side ---------- */
-
-  const quoteSide =
-    document.createElement(
-      "div"
-    );
-
-
-  const quote =
-    document.createElement(
-      "p"
-    );
-
-
-  quote.className =
-    "parent-testimonial-quote";
-
-
-  quote.textContent =
-    `“${createParentPreview(parent.testimonial)}”`;
-
-
-  quoteSide.appendChild(
-    quote
-  );
-
-
-  /* ---------- Person / action side ---------- */
-
-  const detailsSide =
-    document.createElement(
-      "div"
-    );
-
-
-  const meta =
-    document.createElement(
-      "div"
-    );
-
-
-  meta.className =
-    "parent-testimonial-meta";
-
-
-  const name =
-    document.createElement(
-      "strong"
-    );
-
-
-  name.textContent =
-    parent.name;
-
-
-  const type =
-    document.createElement(
-      "span"
-    );
-
-
-  type.textContent =
-    parent.type;
-
-
-  meta.appendChild(
-    name
-  );
-
-
-  meta.appendChild(
-    type
-  );
-
-
-  const readMore =
-    document.createElement(
-      "button"
-    );
-
-
-  readMore.type =
-    "button";
-
-
-  readMore.className =
-    "testimonial-read-more";
-
-
-  readMore.textContent =
-    "Read full testimonial";
-
-
-  readMore.addEventListener(
-    "click",
-    function () {
-
-      openTestimonialModal(
-        parent,
-        readMore
-      );
+        parents =
+            testimonials.filter(
+                isParentTestimonial
+            );
 
     }
-  );
 
 
-  detailsSide.appendChild(
-    meta
-  );
+    if (parents.length === 0) {
+
+        featuredParentMount.innerHTML =
+            "";
+
+        return;
+
+    }
 
 
-  detailsSide.appendChild(
-    readMore
-  );
+    featuredParentMount.innerHTML =
+        "";
 
 
-  card.appendChild(
-    quoteSide
-  );
+    /* -----------------------------------------
+       Slider wrapper
+       ----------------------------------------- */
+
+    const slider =
+        document.createElement(
+            "div"
+        );
+
+    slider.className =
+        "parent-testimonial-slider";
 
 
-  card.appendChild(
-    detailsSide
-  );
+    /* -----------------------------------------
+       Scrollable track
+       ----------------------------------------- */
+
+    const track =
+        document.createElement(
+            "div"
+        );
+
+    track.className =
+        "parent-testimonial-track";
 
 
-  featuredParentMount.appendChild(
-    card
-  );
+    parents.forEach(
+        function (parent) {
+
+            const slide =
+                document.createElement(
+                    "div"
+                );
+
+            slide.className =
+                "parent-testimonial-slide";
+
+
+            /* ---------- Main card ---------- */
+
+            const card =
+                document.createElement(
+                    "article"
+                );
+
+            card.className =
+                "parent-testimonial-card";
+
+
+            /* ---------- Quote side ---------- */
+
+            const quoteSide =
+                document.createElement(
+                    "div"
+                );
+
+
+            const quote =
+                document.createElement(
+                    "p"
+                );
+
+            quote.className =
+                "parent-testimonial-quote";
+
+
+            /*
+               Use manually chosen homepage excerpt
+               when supplied.
+
+               Otherwise fall back to the automatic
+               preview function.
+            */
+
+            const quoteText =
+                parent.homepageExcerpt ||
+                createParentPreview(
+                    parent.testimonial
+                );
+
+
+            quote.textContent =
+                `“${quoteText}”`;
+
+
+            quoteSide.appendChild(
+                quote
+            );
+
+
+            /* ---------- Person / action side ---------- */
+
+            const detailsSide =
+                document.createElement(
+                    "div"
+                );
+
+
+            const meta =
+                document.createElement(
+                    "div"
+                );
+
+            meta.className =
+                "parent-testimonial-meta";
+
+
+            const name =
+                document.createElement(
+                    "strong"
+                );
+
+            name.textContent =
+                parent.name;
+
+
+            const type =
+                document.createElement(
+                    "span"
+                );
+
+            type.textContent =
+                parent.type;
+
+
+            meta.appendChild(
+                name
+            );
+
+            meta.appendChild(
+                type
+            );
+
+
+            /* ---------- Read full testimonial ---------- */
+
+            const readMore =
+                document.createElement(
+                    "button"
+                );
+
+            readMore.type =
+                "button";
+
+            readMore.className =
+                "testimonial-read-more";
+
+            readMore.textContent =
+                "Read full testimonial";
+
+
+            readMore.addEventListener(
+                "click",
+                function () {
+
+                    openTestimonialModal(
+                        parent,
+                        readMore
+                    );
+
+                }
+            );
+
+
+            detailsSide.appendChild(
+                meta
+            );
+
+            detailsSide.appendChild(
+                readMore
+            );
+
+
+            card.appendChild(
+                quoteSide
+            );
+
+            card.appendChild(
+                detailsSide
+            );
+
+
+            slide.appendChild(
+                card
+            );
+
+            track.appendChild(
+                slide
+            );
+
+        }
+    );
+
+
+    slider.appendChild(
+        track
+    );
+
+
+    /* -----------------------------------------
+       Navigation controls
+       Only needed when we have 2+ parents
+       ----------------------------------------- */
+
+    if (parents.length > 1) {
+
+        const controls =
+            document.createElement(
+                "div"
+            );
+
+        controls.className =
+            "parent-testimonial-controls";
+
+
+        const previousButton =
+            document.createElement(
+                "button"
+            );
+
+        previousButton.type =
+            "button";
+
+        previousButton.className =
+            "parent-testimonial-arrow";
+
+        previousButton.setAttribute(
+            "aria-label",
+            "Previous parent testimonial"
+        );
+
+        previousButton.textContent =
+            "←";
+
+
+        const dots =
+            document.createElement(
+                "div"
+            );
+
+        dots.className =
+            "parent-testimonial-dots";
+
+
+        const nextButton =
+            document.createElement(
+                "button"
+            );
+
+        nextButton.type =
+            "button";
+
+        nextButton.className =
+            "parent-testimonial-arrow";
+
+        nextButton.setAttribute(
+            "aria-label",
+            "Next parent testimonial"
+        );
+
+        nextButton.textContent =
+            "→";
+
+
+        let currentParentIndex =
+            0;
+
+
+        const dotButtons =
+            [];
+
+
+        parents.forEach(
+            function (parent, index) {
+
+                const dot =
+                    document.createElement(
+                        "button"
+                    );
+
+                dot.type =
+                    "button";
+
+                dot.className =
+                    "parent-testimonial-dot";
+
+
+                dot.setAttribute(
+                    "aria-label",
+                    `Show testimonial from ${parent.name}`
+                );
+
+
+                dot.addEventListener(
+                    "click",
+                    function () {
+
+                        goToParent(
+                            index
+                        );
+
+                    }
+                );
+
+
+                dots.appendChild(
+                    dot
+                );
+
+                dotButtons.push(
+                    dot
+                );
+
+            }
+        );
+
+
+        /* ---------- Update active dot ---------- */
+
+        function updateParentDots() {
+
+            dotButtons.forEach(
+                function (dot, index) {
+
+                    dot.classList.toggle(
+                        "is-active",
+                        index === currentParentIndex
+                    );
+
+                }
+            );
+
+        }
+
+
+        /* ---------- Move to testimonial ---------- */
+
+        function goToParent(
+            index
+        ) {
+
+            currentParentIndex =
+                (
+                    index +
+                    parents.length
+                ) %
+                parents.length;
+
+
+            track.scrollTo({
+                left:
+                    track.clientWidth *
+                    currentParentIndex,
+
+                behavior:
+                    "smooth"
+            });
+
+
+            updateParentDots();
+
+        }
+
+
+        previousButton.addEventListener(
+            "click",
+            function () {
+
+                goToParent(
+                    currentParentIndex - 1
+                );
+
+            }
+        );
+
+
+        nextButton.addEventListener(
+            "click",
+            function () {
+
+                goToParent(
+                    currentParentIndex + 1
+                );
+
+            }
+        );
+
+
+        /*
+           Keep dots synchronised when someone
+           swipes manually on mobile/tablet.
+        */
+
+        let parentScrollTimer;
+
+
+        track.addEventListener(
+            "scroll",
+            function () {
+
+                clearTimeout(
+                    parentScrollTimer
+                );
+
+
+                parentScrollTimer =
+                    setTimeout(
+                        function () {
+
+                            currentParentIndex =
+                                Math.round(
+                                    track.scrollLeft /
+                                    track.clientWidth
+                                );
+
+
+                            updateParentDots();
+
+                        },
+                        80
+                    );
+
+            }
+        );
+
+
+        controls.appendChild(
+            previousButton
+        );
+
+        controls.appendChild(
+            dots
+        );
+
+        controls.appendChild(
+            nextButton
+        );
+
+
+        slider.appendChild(
+            controls
+        );
+
+
+        updateParentDots();
+
+    }
+
+
+    featuredParentMount.appendChild(
+        slider
+    );
 
 }
 
