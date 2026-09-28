@@ -10,6 +10,7 @@
    - Render featured parent testimonial slider
    - Render three early homepage student highlights
    - Render student snap carousel
+   - Render all-testimonials page grid + filters
    - Create full-testimonial modal
 ========================================================= */
 
@@ -35,6 +36,12 @@ const featuredParentMount =
 
 const homepageHighlightsMount =
   document.querySelector("#homepage-testimonial-highlights");
+
+const allTestimonialsMount =
+  document.querySelector("#all-testimonials-grid");
+
+const testimonialFilterButtons =
+  document.querySelectorAll("[data-testimonial-filter]");
 
 
 /* =========================================================
@@ -104,6 +111,7 @@ async function loadTestimonials() {
     renderParentTestimonial(activeTestimonials);
     renderHomepageHighlights(activeTestimonials);
     renderStudentTestimonials(activeTestimonials);
+    renderAllTestimonials(activeTestimonials);
 
     console.log(
       "Testimonials loaded successfully:",
@@ -804,7 +812,121 @@ function truncateAllPreviews() {
 
 
 /* =========================================================
-   12. OPEN TESTIMONIAL MODAL
+   12. ALL TESTIMONIALS PAGE GRID + FILTERS
+========================================================= */
+
+function renderAllTestimonials(testimonials) {
+  if (!allTestimonialsMount) {
+    return;
+  }
+
+  let currentFilter = "all";
+
+  function drawGrid() {
+    allTestimonialsMount.innerHTML = "";
+
+    const filteredTestimonials = testimonials.filter(
+      function (testimonial) {
+        if (currentFilter === "student") {
+          return isStudentTestimonial(testimonial);
+        }
+
+        if (currentFilter === "parent") {
+          return isParentTestimonial(testimonial);
+        }
+
+        return true;
+      }
+    );
+
+    filteredTestimonials.forEach(
+      function (testimonial) {
+        allTestimonialsMount.appendChild(
+          createAllTestimonialCard(testimonial)
+        );
+      }
+    );
+  }
+
+  testimonialFilterButtons.forEach(
+    function (button) {
+      button.addEventListener(
+        "click",
+        function () {
+          currentFilter =
+            button.dataset.testimonialFilter || "all";
+
+          testimonialFilterButtons.forEach(
+            function (otherButton) {
+              otherButton.classList.toggle(
+                "is-active",
+                otherButton === button
+              );
+            }
+          );
+
+          drawGrid();
+        }
+      );
+    }
+  );
+
+  drawGrid();
+}
+
+
+function createAllTestimonialCard(testimonial) {
+  const card = document.createElement("article");
+  card.className = "all-testimonial-card";
+
+  const type = document.createElement("p");
+  type.className = "all-testimonial-type";
+  type.textContent = testimonial.type || "Experience";
+
+  const preview = document.createElement("p");
+  preview.className = "all-testimonial-preview";
+  preview.textContent = testimonial.testimonial || "";
+
+  const person = document.createElement("div");
+  person.className = "all-testimonial-person";
+
+  const name = document.createElement("strong");
+  name.textContent = testimonial.name || "";
+
+  const details = document.createElement("span");
+  details.textContent = testimonial.grade
+    ? `${testimonial.type || ""} · ${testimonial.grade}`
+    : (testimonial.type || "");
+
+  person.appendChild(name);
+  person.appendChild(details);
+
+  const readMore = document.createElement("button");
+  readMore.type = "button";
+  readMore.className = "testimonial-read-more";
+  readMore.textContent = "Read full testimonial";
+
+  readMore.addEventListener(
+    "click",
+    function () {
+      openTestimonialModal(
+        testimonial,
+        readMore
+      );
+    }
+  );
+
+  card.appendChild(type);
+  card.appendChild(preview);
+  card.appendChild(person);
+  card.appendChild(readMore);
+
+  return card;
+}
+
+
+/* =========================================================
+   13. OPEN TESTIMONIAL MODAL
 ========================================================= */
 
 function openTestimonialModal(
@@ -856,7 +978,7 @@ function openTestimonialModal(
 
 
 /* =========================================================
-   13. CLOSE TESTIMONIAL MODAL
+   14. CLOSE TESTIMONIAL MODAL
 ========================================================= */
 
 function closeTestimonialModal() {
@@ -905,7 +1027,7 @@ document.addEventListener(
 
 
 /* =========================================================
-   14. RECALCULATE AFTER RESIZE
+   15. RECALCULATE AFTER RESIZE
 ========================================================= */
 
 window.addEventListener(

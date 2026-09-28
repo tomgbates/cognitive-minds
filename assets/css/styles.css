@@ -3603,3 +3603,754 @@ a.button.button-primary.whatsapp-button:hover {
     color: #ffffff;
 }
 
+
+
+/* =========================================================
+   19. INTERNAL PAGE SYSTEM
+
+   Used by:
+   - tutoring.html
+   - about.html
+   - testimonials.html
+   - contact.html
+
+   These styles intentionally reuse the same design system,
+   header, footer, buttons and card language as the homepage.
+========================================================= */
+
+
+/* ---------------------------------------------------------
+   Internal page hero
+--------------------------------------------------------- */
+
+.page-hero {
+    padding: 92px 0;
+
+    background-color: var(--color-background);
+}
+
+.page-hero-soft {
+    background-color: var(--color-background-soft);
+}
+
+.page-hero-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.25fr)
+        minmax(320px, 0.75fr);
+
+    gap: 72px;
+
+    align-items: center;
+}
+
+.page-hero-grid-photo {
+    grid-template-columns:
+        minmax(300px, 0.72fr)
+        minmax(0, 1.28fr);
+}
+
+.page-hero-copy {
+    max-width: 760px;
+}
+
+.page-hero-copy h1 {
+    margin-bottom: 28px;
+
+    font-size: clamp(46px, 5vw, 70px);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+}
+
+.page-hero-lead {
+    max-width: 690px;
+
+    margin-bottom: 32px;
+
+    color: var(--color-text-soft);
+
+    font-size: 19px;
+}
+
+.page-hero-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    align-items: center;
+
+    gap: 22px;
+}
+
+.page-summary-card,
+.contact-card {
+    padding: 38px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-large);
+
+    background-color: #ffffff;
+
+    box-shadow: var(--shadow-card);
+}
+
+.page-check-list {
+    display: grid;
+
+    gap: 16px;
+
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.page-check-list li {
+    position: relative;
+
+    padding-left: 28px;
+
+    color: var(--color-text-soft);
+}
+
+.page-check-list li::before {
+    content: "✓";
+
+    position: absolute;
+
+    left: 0;
+    top: 0;
+
+    color: var(--color-primary);
+
+    font-weight: 800;
+}
+
+.page-photo-placeholder {
+    min-height: 520px;
+
+    display: grid;
+    place-items: center;
+
+    padding: 28px;
+
+    border: 1px dashed var(--color-border);
+    border-radius: var(--radius-large);
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--color-pink-soft),
+            var(--color-teal-soft)
+        );
+
+    color: var(--color-text-soft);
+
+    text-align: center;
+}
+
+
+/* ---------------------------------------------------------
+   Shared internal page sections
+--------------------------------------------------------- */
+
+.detail-section,
+.split-info-section,
+.all-testimonials-section {
+    padding: var(--section-padding) 0;
+}
+
+.detail-section-soft {
+    background-color: var(--color-background-soft);
+}
+
+.detail-section-pink {
+    background-color: var(--color-pink-soft);
+}
+
+.internal-tutoring-options {
+    padding-top: var(--section-padding);
+    padding-bottom: var(--section-padding);
+}
+
+
+/* ---------------------------------------------------------
+   Internal information cards
+--------------------------------------------------------- */
+
+.info-card-grid {
+    display: grid;
+
+    gap: 22px;
+}
+
+.info-card-grid-four {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.info-card,
+.process-card,
+.academic-card,
+.contact-option-card {
+    padding: 32px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+
+    background-color: #ffffff;
+
+    box-shadow: var(--shadow-card);
+}
+
+.info-card-pink,
+.process-card-pink,
+.academic-card-pink {
+    border-color: var(--color-pink-border);
+
+    background-color: var(--color-pink-soft);
+}
+
+.info-card strong,
+.academic-card > span,
+.contact-option-card > span {
+    display: inline-block;
+
+    margin-bottom: 18px;
+
+    color: var(--color-primary);
+
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.info-card-pink strong,
+.academic-card-pink > span {
+    color: var(--color-pink);
+}
+
+.info-card h3,
+.process-card h3,
+.academic-card h3,
+.contact-option-card h3 {
+    margin-bottom: 14px;
+
+    font-size: 23px;
+}
+
+.info-card p,
+.process-card p,
+.academic-card p,
+.contact-option-card p {
+    margin-bottom: 0;
+
+    color: var(--color-text-soft);
+}
+
+.process-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 24px;
+}
+
+.process-card {
+    min-height: 220px;
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+@media (hover: hover) and (pointer: fine) {
+    .process-card:hover,
+    .info-card:hover,
+    .academic-card:hover,
+    .contact-option-card:hover,
+    .all-testimonial-card:hover {
+        transform: translateY(-5px);
+
+        box-shadow: var(--shadow-card-hover);
+    }
+}
+
+.about-process-grid {
+    margin-top: 56px;
+}
+
+
+/* ---------------------------------------------------------
+   Split text sections
+--------------------------------------------------------- */
+
+.split-info-section {
+    background-color: var(--color-background-soft);
+}
+
+.split-info-grid,
+.split-story-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 72px;
+}
+
+.split-info-grid > div,
+.split-story-grid > div {
+    min-width: 0;
+}
+
+.split-info-grid h2,
+.split-story-grid h2 {
+    margin-bottom: 20px;
+
+    font-size: clamp(34px, 3.4vw, 48px);
+    letter-spacing: -0.035em;
+}
+
+.split-info-grid p,
+.story-copy p {
+    color: var(--color-text-soft);
+
+    font-size: 17px;
+}
+
+.story-copy p:last-child {
+    margin-bottom: 0;
+}
+
+
+/* ---------------------------------------------------------
+   Exam-prep teaser
+--------------------------------------------------------- */
+
+.exam-prep-teaser {
+    padding: 76px 0;
+
+    background-color: var(--color-teal-light);
+}
+
+.exam-prep-teaser-grid {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        auto;
+
+    gap: 50px;
+
+    align-items: center;
+}
+
+.exam-prep-teaser h2 {
+    margin-bottom: 18px;
+
+    font-size: clamp(34px, 3.6vw, 50px);
+    letter-spacing: -0.035em;
+}
+
+.exam-prep-teaser p:not(.eyebrow) {
+    max-width: 760px;
+
+    margin-bottom: 0;
+
+    color: var(--color-text-soft);
+}
+
+
+/* ---------------------------------------------------------
+   Academic profile cards
+--------------------------------------------------------- */
+
+.academic-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 22px;
+}
+
+.academic-card {
+    min-height: 240px;
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+
+/* ---------------------------------------------------------
+   Testimonials page
+--------------------------------------------------------- */
+
+.page-proof-stat strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--color-primary);
+
+    font-size: 72px;
+    line-height: 1;
+}
+
+.page-proof-stat h2 {
+    margin-bottom: 18px;
+
+    font-size: 30px;
+}
+
+.page-proof-stat p {
+    color: var(--color-text-soft);
+}
+
+.page-proof-stat span {
+    color: var(--color-text-light);
+
+    font-size: 14px;
+}
+
+.testimonials-page-parent {
+    padding-top: var(--section-padding);
+}
+
+.testimonial-filters {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 34px;
+}
+
+.testimonial-filter {
+    padding: 10px 18px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+
+    background-color: #ffffff;
+
+    color: var(--color-text-soft);
+
+    font-weight: 700;
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast);
+}
+
+.testimonial-filter:hover,
+.testimonial-filter.is-active {
+    border-color: var(--color-primary);
+
+    background-color: var(--color-teal-soft);
+
+    color: var(--color-primary-dark);
+}
+
+.all-testimonials-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 24px;
+}
+
+.all-testimonial-card {
+    min-height: 360px;
+
+    display: flex;
+    flex-direction: column;
+
+    padding: 30px;
+
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+
+    background-color: #ffffff;
+
+    box-shadow: var(--shadow-card);
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.all-testimonial-card:nth-child(even) {
+    border-color: var(--color-pink-border);
+
+    background-color: var(--color-pink-soft);
+}
+
+.all-testimonial-type {
+    margin-bottom: 22px;
+
+    color: var(--color-primary-dark);
+
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.all-testimonial-preview {
+    display: -webkit-box;
+
+    overflow: hidden;
+
+    margin-bottom: 28px;
+
+    color: var(--color-text-soft);
+
+    -webkit-line-clamp: 7;
+    -webkit-box-orient: vertical;
+}
+
+.all-testimonial-person {
+    margin-top: auto;
+    margin-bottom: 16px;
+}
+
+.all-testimonial-person strong,
+.all-testimonial-person span {
+    display: block;
+}
+
+.all-testimonial-person span {
+    margin-top: 4px;
+
+    color: var(--color-text-light);
+
+    font-size: 14px;
+}
+
+
+/* ---------------------------------------------------------
+   Contact page
+--------------------------------------------------------- */
+
+.contact-options-grid {
+    display: grid;
+
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    gap: 24px;
+}
+
+.contact-option-card {
+    min-height: 330px;
+
+    display: flex;
+    flex-direction: column;
+
+    transition:
+        transform var(--transition-normal),
+        box-shadow var(--transition-normal);
+}
+
+.contact-option-card-primary {
+    border-color: var(--color-pink-border);
+
+    background-color: var(--color-pink-soft);
+}
+
+.contact-option-card .button,
+.contact-text-link {
+    margin-top: auto;
+}
+
+.contact-text-link {
+    width: fit-content;
+
+    padding-bottom: 4px;
+
+    border-bottom: 2px solid var(--color-primary);
+
+    color: var(--color-primary-dark);
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   20. INTERNAL PAGE TABLET STYLES
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .page-hero {
+        padding: 72px 0;
+    }
+
+    .page-hero-grid,
+    .page-hero-grid-photo {
+        grid-template-columns: 1fr;
+
+        gap: 44px;
+    }
+
+    .page-hero-grid-photo .page-photo-placeholder {
+        order: 2;
+    }
+
+    .page-hero-copy h1 {
+        font-size: clamp(44px, 7vw, 60px);
+    }
+
+    .page-summary-card,
+    .contact-card {
+        max-width: 640px;
+    }
+
+    .page-photo-placeholder {
+        min-height: 400px;
+    }
+
+    .info-card-grid-four,
+    .academic-grid,
+    .contact-options-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .process-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .process-card:last-child {
+        grid-column: 1 / -1;
+    }
+
+    .split-info-grid,
+    .split-story-grid {
+        gap: 44px;
+    }
+
+    .exam-prep-teaser-grid {
+        grid-template-columns: 1fr;
+
+        gap: 28px;
+    }
+
+    .exam-prep-teaser-grid .button {
+        width: fit-content;
+    }
+
+    .all-testimonials-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================================
+   21. INTERNAL PAGE MOBILE STYLES
+========================================================= */
+
+@media (max-width: 600px) {
+
+    .page-hero {
+        padding: 56px 0;
+    }
+
+    .page-hero-grid,
+    .page-hero-grid-photo {
+        gap: 32px;
+    }
+
+    .page-hero-copy h1 {
+        margin-bottom: 22px;
+
+        font-size: 40px;
+    }
+
+    .page-hero-lead {
+        font-size: 17px;
+    }
+
+    .page-hero-actions {
+        align-items: stretch;
+        flex-direction: column;
+
+        gap: 14px;
+    }
+
+    .page-hero-actions .button,
+    .page-hero-actions .button-secondary {
+        width: 100%;
+
+        justify-content: center;
+    }
+
+    .page-summary-card,
+    .contact-card {
+        padding: 28px;
+    }
+
+    .page-photo-placeholder {
+        min-height: 340px;
+    }
+
+    .detail-section,
+    .split-info-section,
+    .all-testimonials-section,
+    .internal-tutoring-options {
+        padding-top: 72px;
+        padding-bottom: 72px;
+    }
+
+    .info-card-grid-four,
+    .process-grid,
+    .academic-grid,
+    .split-info-grid,
+    .split-story-grid,
+    .contact-options-grid,
+    .all-testimonials-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .process-card:last-child {
+        grid-column: auto;
+    }
+
+    .info-card,
+    .process-card,
+    .academic-card,
+    .contact-option-card,
+    .all-testimonial-card {
+        min-height: 0;
+
+        padding: 26px;
+    }
+
+    .split-info-grid,
+    .split-story-grid {
+        gap: 52px;
+    }
+
+    .exam-prep-teaser {
+        padding: 64px 0;
+    }
+
+    .exam-prep-teaser-grid .button {
+        width: 100%;
+    }
+
+    .page-proof-stat strong {
+        font-size: 58px;
+    }
+
+    .testimonial-filters {
+        margin-bottom: 26px;
+    }
+
+    .testimonial-filter {
+        flex: 1 1 auto;
+    }
+
+}
