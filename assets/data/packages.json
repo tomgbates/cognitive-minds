@@ -34,6 +34,8 @@
       "Impaq, CAPS, IEB and more"
     ],
 
+    "ctaText": "Ask about availability",
+
     "discount": {
       "active": false,
       "percent": 0,
@@ -49,13 +51,14 @@
     "id": "small-group",
     "theme": "pink",
 
-    "title": "Homeschool Small Group Programme",
+    "title": "Impaq Homeschool Small Group Programme",
 
     "description": "Focused Physics and Chemistry tutoring in a supportive small-group environment, giving learners time to work through problems, ask questions and develop a deeper understanding of the work.",
 
     "tags": [
       "Homeschool",
-      "Small Group"
+      "Small Group",
+      "English + Afrikaans"
     ],
 
     "pricing": {
@@ -83,6 +86,8 @@
       "Problem-solving practice",
       "Supportive learning environment"
     ],
+
+    "ctaText": "Ask about a space",
 
     "discount": {
       "active": false,

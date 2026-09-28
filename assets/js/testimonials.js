@@ -7,8 +7,9 @@
 
    PURPOSE:
    - Load testimonial JSON files
-   - Feature a parent testimonial separately
-   - Show student testimonials in moving carousel
+   - Render featured parent testimonial slider
+   - Render three early homepage student highlights
+   - Render student snap carousel
    - Create full-testimonial modal
 ========================================================= */
 
@@ -18,21 +19,22 @@
 ========================================================= */
 
 const testimonialTrack =
-  document.querySelector(
-    "#testimonial-track"
-  );
-
+  document.querySelector("#testimonial-track");
 
 const testimonialCarousel =
-  document.querySelector(
-    ".testimonial-carousel"
-  );
+  document.querySelector("#student-testimonial-carousel");
 
+const testimonialPrevButton =
+  document.querySelector("#testimonial-prev");
+
+const testimonialNextButton =
+  document.querySelector("#testimonial-next");
 
 const featuredParentMount =
-  document.querySelector(
-    "#featured-parent-testimonial"
-  );
+  document.querySelector("#featured-parent-testimonial");
+
+const homepageHighlightsMount =
+  document.querySelector("#homepage-testimonial-highlights");
 
 
 /* =========================================================
@@ -40,1813 +42,842 @@ const featuredParentMount =
 ========================================================= */
 
 const testimonialModal =
-  document.querySelector(
-    "#testimonial-modal"
-  );
-
+  document.querySelector("#testimonial-modal");
 
 const testimonialModalBackdrop =
-  testimonialModal?.querySelector(
-    ".testimonial-modal-backdrop"
-  );
-
+  testimonialModal?.querySelector(".testimonial-modal-backdrop");
 
 const testimonialModalClose =
-  testimonialModal?.querySelector(
-    ".testimonial-modal-close"
-  );
-
+  testimonialModal?.querySelector(".testimonial-modal-close");
 
 const testimonialModalType =
-  document.querySelector(
-    "#testimonial-modal-type"
-  );
-
+  document.querySelector("#testimonial-modal-type");
 
 const testimonialModalName =
-  document.querySelector(
-    "#testimonial-modal-name"
-  );
-
+  document.querySelector("#testimonial-modal-name");
 
 const testimonialModalText =
-  document.querySelector(
-    "#testimonial-modal-text"
-  );
+  document.querySelector("#testimonial-modal-text");
+
+let lastFocusedElement = null;
 
 
 /* =========================================================
-   03. CAROUSEL SETTINGS
-
-   Smaller speed = slower movement.
-
-   22 means approximately 22px per second.
-========================================================= */
-
-const TESTIMONIAL_SPEED =
-  22;
-
-
-/*
-   Maximum centre-card enlargement.
-
-   1.10 = 10% larger.
-*/
-
-const MAX_CARD_SCALE =
-  1.10;
-
-
-/* =========================================================
-   04. CAROUSEL STATE
-========================================================= */
-
-let carouselOffset =
-  0;
-
-
-let testimonialSetWidth =
-  0;
-
-
-let previousAnimationTime =
-  null;
-
-
-let carouselHovered =
-  false;
-
-
-let carouselFocused =
-  false;
-
-
-let testimonialModalOpen =
-  false;
-
-
-let carouselPaused =
-  false;
-
-
-let animationStarted =
-  false;
-
-
-let lastFocusedElement =
-  null;
-
-
-/* =========================================================
-   05. UPDATE PAUSE STATE
-========================================================= */
-
-function updateCarouselPauseState() {
-
-  carouselPaused =
-    carouselHovered ||
-    carouselFocused ||
-    testimonialModalOpen;
-
-}
-
-
-/* =========================================================
-   06. LOAD TESTIMONIAL DATA
+   03. LOAD TESTIMONIAL DATA
 ========================================================= */
 
 async function loadTestimonials() {
-
   try {
-
     const indexResponse =
-      await fetch(
-        "assets/data/testimonials/index.json"
-      );
-
+      await fetch("assets/data/testimonials/index.json");
 
     if (!indexResponse.ok) {
-
-      throw new Error(
-        "Could not load testimonials/index.json"
-      );
-
+      throw new Error("Could not load testimonials/index.json");
     }
-
 
     const testimonialFiles =
       await indexResponse.json();
 
+    const requests = testimonialFiles.map(
+      async function (fileName) {
+        const response =
+          await fetch(`assets/data/testimonials/${fileName}`);
 
-    const requests =
-      testimonialFiles.map(
-        async function (fileName) {
-
-          const response =
-            await fetch(
-              `assets/data/testimonials/${fileName}`
-            );
-
-
-          if (!response.ok) {
-
-            throw new Error(
-              `Could not load testimonial: ${fileName}`
-            );
-
-          }
-
-
-          return response.json();
-
+        if (!response.ok) {
+          throw new Error(`Could not load testimonial: ${fileName}`);
         }
-      );
 
+        return response.json();
+      }
+    );
 
     const testimonials =
-      await Promise.all(
-        requests
-      );
-
+      await Promise.all(requests);
 
     const activeTestimonials =
       testimonials.filter(
         function (testimonial) {
-
-          return (
-            testimonial.active !== false
-          );
-
+          return testimonial.active !== false;
         }
       );
 
-
-    renderParentTestimonial(
-      activeTestimonials
-    );
-
-
-    renderStudentTestimonials(
-      activeTestimonials
-    );
-
+    renderParentTestimonial(activeTestimonials);
+    renderHomepageHighlights(activeTestimonials);
+    renderStudentTestimonials(activeTestimonials);
 
     console.log(
       "Testimonials loaded successfully:",
       activeTestimonials
     );
-
-
   } catch (error) {
-
     console.error(
       "Error loading testimonials:",
       error
     );
+  }
+}
 
+
+/* =========================================================
+   04. TESTIMONIAL TYPE HELPERS
+========================================================= */
+
+function isParentTestimonial(testimonial) {
+  return String(testimonial.type || "")
+    .toLowerCase()
+    .includes("parent");
+}
+
+function isStudentTestimonial(testimonial) {
+  return String(testimonial.type || "")
+    .toLowerCase()
+    .includes("student");
+}
+
+
+/* =========================================================
+   05. FEATURED PARENT TESTIMONIAL SLIDER
+========================================================= */
+
+function renderParentTestimonial(testimonials) {
+  if (!featuredParentMount) {
+    return;
   }
 
-}
-
-
-/* =========================================================
-   07. TESTIMONIAL TYPE HELPERS
-========================================================= */
-
-function isParentTestimonial(
-  testimonial
-) {
-
-  return (
-    String(
-      testimonial.type || ""
-    )
-      .toLowerCase()
-      .includes("parent")
+  let parents = testimonials.filter(
+    function (testimonial) {
+      return (
+        isParentTestimonial(testimonial) &&
+        testimonial.featured === true
+      );
+    }
   );
 
-}
+  if (parents.length === 0) {
+    parents = testimonials.filter(isParentTestimonial);
+  }
 
+  if (parents.length === 0) {
+    featuredParentMount.innerHTML = "";
+    return;
+  }
 
-function isStudentTestimonial(
-  testimonial
-) {
+  featuredParentMount.innerHTML = "";
 
-  return (
-    String(
-      testimonial.type || ""
-    )
-      .toLowerCase()
-      .includes("student")
+  const slider = document.createElement("div");
+  slider.className = "parent-testimonial-slider";
+
+  const track = document.createElement("div");
+  track.className = "parent-testimonial-track";
+
+  parents.forEach(
+    function (parent) {
+      const slide = document.createElement("div");
+      slide.className = "parent-testimonial-slide";
+
+      const card = document.createElement("article");
+      card.className = "parent-testimonial-card";
+
+      const quoteSide = document.createElement("div");
+      const quote = document.createElement("p");
+      quote.className = "parent-testimonial-quote";
+
+      const quoteText =
+        parent.homepageExcerpt ||
+        createParentPreview(parent.testimonial);
+
+      quote.textContent = `“${quoteText}”`;
+      quoteSide.appendChild(quote);
+
+      const detailsSide = document.createElement("div");
+
+      const meta = document.createElement("div");
+      meta.className = "parent-testimonial-meta";
+
+      const name = document.createElement("strong");
+      name.textContent = parent.name || "";
+
+      const type = document.createElement("span");
+      type.textContent = parent.type || "";
+
+      meta.appendChild(name);
+      meta.appendChild(type);
+
+      const readMore = document.createElement("button");
+      readMore.type = "button";
+      readMore.className = "testimonial-read-more";
+      readMore.textContent = "Read full testimonial";
+
+      readMore.addEventListener(
+        "click",
+        function () {
+          openTestimonialModal(parent, readMore);
+        }
+      );
+
+      detailsSide.appendChild(meta);
+      detailsSide.appendChild(readMore);
+
+      card.appendChild(quoteSide);
+      card.appendChild(detailsSide);
+
+      slide.appendChild(card);
+      track.appendChild(slide);
+    }
   );
 
-}
+  slider.appendChild(track);
 
+  if (parents.length > 1) {
+    const controls = document.createElement("div");
+    controls.className = "parent-testimonial-controls";
 
-/* =========================================================
-   08. FEATURED PARENT TESTIMONIAL SLIDER
-   - Shows one parent testimonial at a time
-   - Arrow navigation on desktop
-   - Swipe / horizontal scroll on touch devices
-   - Automatically supports future parent testimonials
-========================================================= */
+    const previousButton = document.createElement("button");
+    previousButton.type = "button";
+    previousButton.className = "parent-testimonial-arrow";
+    previousButton.setAttribute(
+      "aria-label",
+      "Previous parent testimonial"
+    );
+    previousButton.textContent = "←";
 
-function renderParentTestimonial(
-    testimonials
-) {
+    const dots = document.createElement("div");
+    dots.className = "parent-testimonial-dots";
 
-    if (!featuredParentMount) {
-        return;
-    }
+    const nextButton = document.createElement("button");
+    nextButton.type = "button";
+    nextButton.className = "parent-testimonial-arrow";
+    nextButton.setAttribute(
+      "aria-label",
+      "Next parent testimonial"
+    );
+    nextButton.textContent = "→";
 
-
-    /* -----------------------------------------
-       Get featured parent testimonials
-       ----------------------------------------- */
-
-    let parents =
-        testimonials.filter(
-            function (testimonial) {
-
-                return (
-                    isParentTestimonial(testimonial) &&
-                    testimonial.featured === true
-                );
-
-            }
-        );
-
-
-    /*
-       If no parent testimonials are marked featured,
-       fall back to all active parent testimonials.
-    */
-
-    if (parents.length === 0) {
-
-        parents =
-            testimonials.filter(
-                isParentTestimonial
-            );
-
-    }
-
-
-    if (parents.length === 0) {
-
-        featuredParentMount.innerHTML =
-            "";
-
-        return;
-
-    }
-
-
-    featuredParentMount.innerHTML =
-        "";
-
-
-    /* -----------------------------------------
-       Slider wrapper
-       ----------------------------------------- */
-
-    const slider =
-        document.createElement(
-            "div"
-        );
-
-    slider.className =
-        "parent-testimonial-slider";
-
-
-    /* -----------------------------------------
-       Scrollable track
-       ----------------------------------------- */
-
-    const track =
-        document.createElement(
-            "div"
-        );
-
-    track.className =
-        "parent-testimonial-track";
-
+    let currentParentIndex = 0;
+    const dotButtons = [];
 
     parents.forEach(
-        function (parent) {
-
-            const slide =
-                document.createElement(
-                    "div"
-                );
-
-            slide.className =
-                "parent-testimonial-slide";
-
-
-            /* ---------- Main card ---------- */
-
-            const card =
-                document.createElement(
-                    "article"
-                );
-
-            card.className =
-                "parent-testimonial-card";
-
-
-            /* ---------- Quote side ---------- */
-
-            const quoteSide =
-                document.createElement(
-                    "div"
-                );
-
-
-            const quote =
-                document.createElement(
-                    "p"
-                );
-
-            quote.className =
-                "parent-testimonial-quote";
-
-
-            /*
-               Use manually chosen homepage excerpt
-               when supplied.
-
-               Otherwise fall back to the automatic
-               preview function.
-            */
-
-            const quoteText =
-                parent.homepageExcerpt ||
-                createParentPreview(
-                    parent.testimonial
-                );
-
-
-            quote.textContent =
-                `“${quoteText}”`;
-
-
-            quoteSide.appendChild(
-                quote
-            );
-
-
-            /* ---------- Person / action side ---------- */
-
-            const detailsSide =
-                document.createElement(
-                    "div"
-                );
-
-
-            const meta =
-                document.createElement(
-                    "div"
-                );
-
-            meta.className =
-                "parent-testimonial-meta";
-
-
-            const name =
-                document.createElement(
-                    "strong"
-                );
-
-            name.textContent =
-                parent.name;
-
-
-            const type =
-                document.createElement(
-                    "span"
-                );
-
-            type.textContent =
-                parent.type;
-
-
-            meta.appendChild(
-                name
-            );
-
-            meta.appendChild(
-                type
-            );
-
-
-            /* ---------- Read full testimonial ---------- */
-
-            const readMore =
-                document.createElement(
-                    "button"
-                );
-
-            readMore.type =
-                "button";
-
-            readMore.className =
-                "testimonial-read-more";
-
-            readMore.textContent =
-                "Read full testimonial";
-
-
-            readMore.addEventListener(
-                "click",
-                function () {
-
-                    openTestimonialModal(
-                        parent,
-                        readMore
-                    );
-
-                }
-            );
-
-
-            detailsSide.appendChild(
-                meta
-            );
-
-            detailsSide.appendChild(
-                readMore
-            );
-
-
-            card.appendChild(
-                quoteSide
-            );
-
-            card.appendChild(
-                detailsSide
-            );
-
-
-            slide.appendChild(
-                card
-            );
-
-            track.appendChild(
-                slide
-            );
-
-        }
-    );
-
-
-    slider.appendChild(
-        track
-    );
-
-
-    /* -----------------------------------------
-       Navigation controls
-       Only needed when we have 2+ parents
-       ----------------------------------------- */
-
-    if (parents.length > 1) {
-
-        const controls =
-            document.createElement(
-                "div"
-            );
-
-        controls.className =
-            "parent-testimonial-controls";
-
-
-        const previousButton =
-            document.createElement(
-                "button"
-            );
-
-        previousButton.type =
-            "button";
-
-        previousButton.className =
-            "parent-testimonial-arrow";
-
-        previousButton.setAttribute(
-            "aria-label",
-            "Previous parent testimonial"
+      function (parent, index) {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "parent-testimonial-dot";
+        dot.setAttribute(
+          "aria-label",
+          `Show testimonial from ${parent.name}`
         );
 
-        previousButton.textContent =
-            "←";
-
-
-        const dots =
-            document.createElement(
-                "div"
-            );
-
-        dots.className =
-            "parent-testimonial-dots";
-
-
-        const nextButton =
-            document.createElement(
-                "button"
-            );
-
-        nextButton.type =
-            "button";
-
-        nextButton.className =
-            "parent-testimonial-arrow";
-
-        nextButton.setAttribute(
-            "aria-label",
-            "Next parent testimonial"
+        dot.addEventListener(
+          "click",
+          function () {
+            goToParent(index);
+          }
         );
 
-        nextButton.textContent =
-            "→";
-
-
-        let currentParentIndex =
-            0;
-
-
-        const dotButtons =
-            [];
-
-
-        parents.forEach(
-            function (parent, index) {
-
-                const dot =
-                    document.createElement(
-                        "button"
-                    );
-
-                dot.type =
-                    "button";
-
-                dot.className =
-                    "parent-testimonial-dot";
-
-
-                dot.setAttribute(
-                    "aria-label",
-                    `Show testimonial from ${parent.name}`
-                );
-
-
-                dot.addEventListener(
-                    "click",
-                    function () {
-
-                        goToParent(
-                            index
-                        );
-
-                    }
-                );
-
-
-                dots.appendChild(
-                    dot
-                );
-
-                dotButtons.push(
-                    dot
-                );
-
-            }
-        );
-
-
-        /* ---------- Update active dot ---------- */
-
-        function updateParentDots() {
-
-            dotButtons.forEach(
-                function (dot, index) {
-
-                    dot.classList.toggle(
-                        "is-active",
-                        index === currentParentIndex
-                    );
-
-                }
-            );
-
-        }
-
-
-        /* ---------- Move to testimonial ---------- */
-
-        function goToParent(
-            index
-        ) {
-
-            currentParentIndex =
-                (
-                    index +
-                    parents.length
-                ) %
-                parents.length;
-
-
-            track.scrollTo({
-                left:
-                    track.clientWidth *
-                    currentParentIndex,
-
-                behavior:
-                    "smooth"
-            });
-
-
-            updateParentDots();
-
-        }
-
-
-        previousButton.addEventListener(
-            "click",
-            function () {
-
-                goToParent(
-                    currentParentIndex - 1
-                );
-
-            }
-        );
-
-
-        nextButton.addEventListener(
-            "click",
-            function () {
-
-                goToParent(
-                    currentParentIndex + 1
-                );
-
-            }
-        );
-
-
-        /*
-           Keep dots synchronised when someone
-           swipes manually on mobile/tablet.
-        */
-
-        let parentScrollTimer;
-
-
-        track.addEventListener(
-            "scroll",
-            function () {
-
-                clearTimeout(
-                    parentScrollTimer
-                );
-
-
-                parentScrollTimer =
-                    setTimeout(
-                        function () {
-
-                            currentParentIndex =
-                                Math.round(
-                                    track.scrollLeft /
-                                    track.clientWidth
-                                );
-
-
-                            updateParentDots();
-
-                        },
-                        80
-                    );
-
-            }
-        );
-
-
-        controls.appendChild(
-            previousButton
-        );
-
-        controls.appendChild(
-            dots
-        );
-
-        controls.appendChild(
-            nextButton
-        );
-
-
-        slider.appendChild(
-            controls
-        );
-
-
-        updateParentDots();
-
-    }
-
-
-    featuredParentMount.appendChild(
-        slider
-    );
-
-}
-
-
-/* =========================================================
-   09. CREATE SHORT PARENT PREVIEW
-========================================================= */
-
-function createParentPreview(
-  testimonialText
-) {
-
-  if (!testimonialText) {
-
-    return "";
-
-  }
-
-
-  /*
-     If the testimonial contains paragraphs,
-     the first paragraph often makes the best
-     natural excerpt.
-  */
-
-  const paragraphs =
-    testimonialText
-      .trim()
-      .split(
-        /\n\s*\n/
-      );
-
-
-  const firstParagraph =
-    paragraphs[0]
-      .replace(
-        /\s+/g,
-        " "
-      )
-      .trim();
-
-
-  const maximumLength =
-    420;
-
-
-  if (
-    firstParagraph.length <=
-    maximumLength
-  ) {
-
-    return firstParagraph;
-
-  }
-
-
-  const shortened =
-    firstParagraph
-      .slice(
-        0,
-        maximumLength
-      );
-
-
-  const lastSpace =
-    shortened.lastIndexOf(
-      " "
-    );
-
-
-  return (
-    shortened
-      .slice(
-        0,
-        lastSpace
-      )
-      .trim() +
-    "…"
-  );
-
-}
-
-
-/* =========================================================
-   10. STUDENT TESTIMONIALS
-========================================================= */
-
-function renderStudentTestimonials(
-  testimonials
-) {
-
-  if (
-    !testimonialTrack ||
-    !testimonialCarousel
-  ) {
-
-    return;
-
-  }
-
-
-  testimonialTrack.innerHTML =
-    "";
-
-
-  let students =
-    testimonials.filter(
-      function (testimonial) {
-
-        return (
-          isStudentTestimonial(
-            testimonial
-          ) &&
-          testimonial.featured === true
-        );
-
+        dots.appendChild(dot);
+        dotButtons.push(dot);
       }
     );
 
-
-  /*
-     If none have featured:true,
-     fall back to all active student reviews.
-  */
-
-  if (
-    students.length === 0
-  ) {
-
-    students =
-      testimonials.filter(
-        isStudentTestimonial
+    function updateParentDots() {
+      dotButtons.forEach(
+        function (dot, index) {
+          dot.classList.toggle(
+            "is-active",
+            index === currentParentIndex
+          );
+        }
       );
+    }
 
+    function goToParent(index) {
+      currentParentIndex =
+        (index + parents.length) % parents.length;
+
+      track.scrollTo({
+        left: track.clientWidth * currentParentIndex,
+        behavior: "smooth"
+      });
+
+      updateParentDots();
+    }
+
+    previousButton.addEventListener(
+      "click",
+      function () {
+        goToParent(currentParentIndex - 1);
+      }
+    );
+
+    nextButton.addEventListener(
+      "click",
+      function () {
+        goToParent(currentParentIndex + 1);
+      }
+    );
+
+    let parentScrollTimer;
+
+    track.addEventListener(
+      "scroll",
+      function () {
+        clearTimeout(parentScrollTimer);
+
+        parentScrollTimer = setTimeout(
+          function () {
+            currentParentIndex = Math.round(
+              track.scrollLeft / track.clientWidth
+            );
+
+            currentParentIndex = Math.max(
+              0,
+              Math.min(
+                currentParentIndex,
+                parents.length - 1
+              )
+            );
+
+            updateParentDots();
+          },
+          80
+        );
+      }
+    );
+
+    controls.appendChild(previousButton);
+    controls.appendChild(dots);
+    controls.appendChild(nextButton);
+
+    slider.appendChild(controls);
+    updateParentDots();
   }
 
+  featuredParentMount.appendChild(slider);
+}
 
-  if (
-    students.length === 0
-  ) {
 
-    testimonialCarousel.style.display =
-      "none";
+/* =========================================================
+   06. CREATE SHORT PARENT PREVIEW
+========================================================= */
+
+function createParentPreview(testimonialText) {
+  if (!testimonialText) {
+    return "";
+  }
+
+  const paragraphs = testimonialText
+    .trim()
+    .split(/\n\s*\n/);
+
+  const firstParagraph = paragraphs[0]
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const maximumLength = 420;
+
+  if (firstParagraph.length <= maximumLength) {
+    return firstParagraph;
+  }
+
+  const shortened = firstParagraph.slice(0, maximumLength);
+  const lastSpace = shortened.lastIndexOf(" ");
+
+  return (
+    shortened.slice(0, lastSpace).trim() + "…"
+  );
+}
+
+
+/* =========================================================
+   07. EARLY HOMEPAGE STUDENT HIGHLIGHTS
+========================================================= */
+
+function renderHomepageHighlights(testimonials) {
+  if (!homepageHighlightsMount) {
+    return;
+  }
+
+  const highlights = testimonials
+    .filter(
+      function (testimonial) {
+        return (
+          isStudentTestimonial(testimonial) &&
+          testimonial.homepageHighlight === true
+        );
+      }
+    )
+    .sort(
+      function (a, b) {
+        return (
+          (a.homepageHighlightOrder ?? 999) -
+          (b.homepageHighlightOrder ?? 999)
+        );
+      }
+    )
+    .slice(0, 3);
+
+  homepageHighlightsMount.innerHTML = "";
+
+  if (highlights.length === 0) {
+    const section =
+      homepageHighlightsMount.closest(".homepage-proof");
+
+    if (section) {
+      section.hidden = true;
+    }
 
     return;
-
   }
 
-
-  const firstSet =
-    createTestimonialSet(
-      students
-    );
-
-
-  const secondSet =
-    createTestimonialSet(
-      students
-    );
-
-
-  secondSet.setAttribute(
-    "aria-hidden",
-    "true"
-  );
-
-
-  testimonialTrack.appendChild(
-    firstSet
-  );
-
-
-  testimonialTrack.appendChild(
-    secondSet
-  );
-
-
-  requestAnimationFrame(
-    function () {
-
-      measureCarousel(
-        firstSet
-      );
-
-
-      truncateAllPreviews();
-
-
-      updateCardSpotlight();
-
-
-      startCarouselAnimation();
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   11. CREATE ONE TESTIMONIAL SET
-========================================================= */
-
-function createTestimonialSet(
-  testimonials
-) {
-
-  const set =
-    document.createElement(
-      "div"
-    );
-
-
-  set.className =
-    "testimonial-set";
-
-
-  testimonials.forEach(
-    function (testimonial) {
-
-      set.appendChild(
-        createTestimonialCard(
-          testimonial
+  highlights.forEach(
+    function (testimonial, index) {
+      homepageHighlightsMount.appendChild(
+        createHomepageHighlightCard(
+          testimonial,
+          index
         )
       );
-
     }
   );
-
-
-  return set;
-
 }
 
-
-/* =========================================================
-   12. CREATE TESTIMONIAL CARD
-========================================================= */
-
-function createTestimonialCard(
-  testimonial
+function createHomepageHighlightCard(
+  testimonial,
+  index
 ) {
+  const card = document.createElement("article");
+  card.className = "homepage-proof-card";
 
-  const card =
-    document.createElement(
-      "article"
-    );
-
-
-  card.className =
-    "testimonial-card";
-
-
-  /* ---------- Quote mark ---------- */
-
-  const quoteMark =
-    document.createElement(
-      "div"
-    );
-
-
-  quoteMark.className =
-    "testimonial-quote-mark";
-
-
-  quoteMark.textContent =
-    "“";
-
-
-  /* ---------- Testimonial preview ---------- */
-
-  const preview =
-    document.createElement(
-      "p"
-    );
-
-
-  preview.className =
-    "testimonial-preview";
-
-
-  preview.dataset.fullText =
-    testimonial.testimonial || "";
-
-
-  preview.textContent =
-    testimonial.testimonial || "";
-
-
-  /* ---------- Person ---------- */
-
-  const person =
-    document.createElement(
-      "div"
-    );
-
-
-  person.className =
-    "testimonial-person";
-
-
-  const name =
-    document.createElement(
-      "strong"
-    );
-
-
-  name.textContent =
-    testimonial.name || "";
-
-
-  const details =
-    document.createElement(
-      "span"
-    );
-
-
-  if (testimonial.grade) {
-
-    details.textContent =
-      `${testimonial.type} · ${testimonial.grade}`;
-
-  } else {
-
-    details.textContent =
-      testimonial.type || "";
-
+  if (index === 1) {
+    card.classList.add("homepage-proof-card-pink");
   }
 
+  const label = document.createElement("span");
+  label.className = "homepage-proof-label";
+  label.textContent =
+    testimonial.homepageLabel || "Student Experience";
 
-  person.appendChild(
-    name
-  );
+  const quote = document.createElement("p");
+  quote.className = "homepage-proof-quote";
+  quote.textContent =
+    `“${testimonial.homepageSnippet || testimonial.testimonial || ""}”`;
 
+  const person = document.createElement("div");
+  person.className = "homepage-proof-person";
 
-  person.appendChild(
-    details
-  );
+  const name = document.createElement("strong");
+  name.textContent = testimonial.name || "";
 
+  const type = document.createElement("span");
+  type.textContent = testimonial.type || "Student";
 
-  /* ---------- Read More ---------- */
+  person.appendChild(name);
+  person.appendChild(type);
 
-  const readMore =
-    document.createElement(
-      "button"
-    );
-
-
-  readMore.type =
-    "button";
-
-
-  readMore.className =
-    "testimonial-read-more";
-
-
-  readMore.textContent =
-    "Read full testimonial";
-
+  const readMore = document.createElement("button");
+  readMore.type = "button";
+  readMore.className = "testimonial-read-more";
+  readMore.textContent = "Read full testimonial";
 
   readMore.addEventListener(
     "click",
     function () {
-
       openTestimonialModal(
         testimonial,
         readMore
       );
-
     }
   );
 
-
-  card.appendChild(
-    quoteMark
-  );
-
-
-  card.appendChild(
-    preview
-  );
-
-
-  card.appendChild(
-    person
-  );
-
-
-  card.appendChild(
-    readMore
-  );
-
+  card.appendChild(label);
+  card.appendChild(quote);
+  card.appendChild(person);
+  card.appendChild(readMore);
 
   return card;
-
 }
 
 
 /* =========================================================
-   13. TESTIMONIAL ELLIPSIS
+   08. STUDENT SNAP CAROUSEL
 ========================================================= */
 
-function truncatePreview(
-  preview
-) {
-
-  const fullText =
-    preview.dataset.fullText;
-
-
-  if (!fullText) {
-
+function renderStudentTestimonials(testimonials) {
+  if (
+    !testimonialTrack ||
+    !testimonialCarousel
+  ) {
     return;
-
   }
 
+  testimonialTrack.innerHTML = "";
 
-  /*
-     Restore complete text before measuring.
-  */
-
-  preview.textContent =
-    fullText;
-
-
-  preview.classList.remove(
-    "is-truncated"
+  let students = testimonials.filter(
+    function (testimonial) {
+      return (
+        isStudentTestimonial(testimonial) &&
+        testimonial.featured === true
+      );
+    }
   );
 
+  if (students.length === 0) {
+    students = testimonials.filter(isStudentTestimonial);
+  }
 
-  /*
-     No truncation needed.
-  */
+  if (students.length === 0) {
+    testimonialCarousel.style.display = "none";
+
+    if (testimonialPrevButton) {
+      testimonialPrevButton.hidden = true;
+    }
+
+    if (testimonialNextButton) {
+      testimonialNextButton.hidden = true;
+    }
+
+    return;
+  }
+
+  students.forEach(
+    function (testimonial) {
+      testimonialTrack.appendChild(
+        createTestimonialCard(testimonial)
+      );
+    }
+  );
+
+  requestAnimationFrame(
+    function () {
+      truncateAllPreviews();
+      updateStudentCarouselButtons();
+    }
+  );
+}
+
+
+/* =========================================================
+   09. CREATE STUDENT TESTIMONIAL CARD
+========================================================= */
+
+function createTestimonialCard(testimonial) {
+  const card = document.createElement("article");
+  card.className = "testimonial-card";
+
+  const quoteMark = document.createElement("div");
+  quoteMark.className = "testimonial-quote-mark";
+  quoteMark.textContent = "“";
+
+  const preview = document.createElement("p");
+  preview.className = "testimonial-preview";
+  preview.dataset.fullText = testimonial.testimonial || "";
+  preview.textContent = testimonial.testimonial || "";
+
+  const person = document.createElement("div");
+  person.className = "testimonial-person";
+
+  const name = document.createElement("strong");
+  name.textContent = testimonial.name || "";
+
+  const details = document.createElement("span");
+
+  if (testimonial.grade) {
+    details.textContent =
+      `${testimonial.type} · ${testimonial.grade}`;
+  } else {
+    details.textContent = testimonial.type || "";
+  }
+
+  person.appendChild(name);
+  person.appendChild(details);
+
+  const readMore = document.createElement("button");
+  readMore.type = "button";
+  readMore.className = "testimonial-read-more";
+  readMore.textContent = "Read full testimonial";
+
+  readMore.addEventListener(
+    "click",
+    function () {
+      openTestimonialModal(
+        testimonial,
+        readMore
+      );
+    }
+  );
+
+  card.appendChild(quoteMark);
+  card.appendChild(preview);
+  card.appendChild(person);
+  card.appendChild(readMore);
+
+  return card;
+}
+
+
+/* =========================================================
+   10. STUDENT CAROUSEL NAVIGATION
+========================================================= */
+
+function getStudentCarouselMetrics() {
+  const firstCard =
+    testimonialTrack?.querySelector(".testimonial-card");
+
+  if (
+    !firstCard ||
+    !testimonialCarousel ||
+    !testimonialTrack
+  ) {
+    return null;
+  }
+
+  const trackStyles =
+    window.getComputedStyle(testimonialTrack);
+
+  const gap =
+    parseFloat(trackStyles.columnGap) ||
+    parseFloat(trackStyles.gap) ||
+    0;
+
+  const cardWidth =
+    firstCard.getBoundingClientRect().width;
+
+  const step = cardWidth + gap;
+
+  const visibleCount = Math.max(
+    1,
+    Math.round(
+      (testimonialCarousel.clientWidth + gap) /
+      step
+    )
+  );
+
+  return {
+    step,
+    visibleCount
+  };
+}
+
+function moveStudentCarousel(direction) {
+  const metrics = getStudentCarouselMetrics();
+
+  if (
+    !metrics ||
+    !testimonialCarousel
+  ) {
+    return;
+  }
+
+  testimonialCarousel.scrollBy({
+    left:
+      direction *
+      metrics.step *
+      metrics.visibleCount,
+    behavior: "smooth"
+  });
+}
+
+function updateStudentCarouselButtons() {
+  if (!testimonialCarousel) {
+    return;
+  }
+
+  const maxScroll = Math.max(
+    0,
+    testimonialCarousel.scrollWidth -
+    testimonialCarousel.clientWidth
+  );
+
+  const atStart =
+    testimonialCarousel.scrollLeft <= 2;
+
+  const atEnd =
+    testimonialCarousel.scrollLeft >=
+    maxScroll - 2;
+
+  if (testimonialPrevButton) {
+    testimonialPrevButton.disabled = atStart;
+    testimonialPrevButton.hidden = maxScroll <= 2;
+  }
+
+  if (testimonialNextButton) {
+    testimonialNextButton.disabled = atEnd;
+    testimonialNextButton.hidden = maxScroll <= 2;
+  }
+}
+
+
+testimonialPrevButton?.addEventListener(
+  "click",
+  function () {
+    moveStudentCarousel(-1);
+  }
+);
+
+
+testimonialNextButton?.addEventListener(
+  "click",
+  function () {
+    moveStudentCarousel(1);
+  }
+);
+
+
+testimonialCarousel?.addEventListener(
+  "scroll",
+  function () {
+    requestAnimationFrame(
+      updateStudentCarouselButtons
+    );
+  },
+  { passive: true }
+);
+
+
+/* =========================================================
+   11. TESTIMONIAL ELLIPSIS
+========================================================= */
+
+function truncatePreview(preview) {
+  const fullText = preview.dataset.fullText;
+
+  if (!fullText) {
+    return;
+  }
+
+  preview.textContent = fullText;
+  preview.classList.remove("is-truncated");
 
   if (
     preview.scrollHeight <=
     preview.clientHeight + 1
   ) {
-
     return;
-
   }
 
-
   const words =
-    fullText
-      .trim()
-      .split(/\s+/);
+    fullText.trim().split(/\s+/);
 
+  let lowestFit = 0;
+  let highestPossible = words.length;
 
-  let lowestFit =
-    0;
-
-
-  let highestPossible =
-    words.length;
-
-
-  /*
-     Binary search finds the maximum number of
-     complete words that fit into the preview.
-  */
-
-  while (
-    lowestFit <
-    highestPossible
-  ) {
-
-    const middle =
-      Math.ceil(
-        (
-          lowestFit +
-          highestPossible
-        ) / 2
-      );
-
+  while (lowestFit < highestPossible) {
+    const middle = Math.ceil(
+      (lowestFit + highestPossible) / 2
+    );
 
     preview.textContent =
-      words
-        .slice(
-          0,
-          middle
-        )
-        .join(" ") +
-      "…";
-
+      words.slice(0, middle).join(" ") + "…";
 
     const fits =
       preview.scrollHeight <=
       preview.clientHeight + 1;
 
-
     if (fits) {
-
-      lowestFit =
-        middle;
-
+      lowestFit = middle;
     } else {
-
-      highestPossible =
-        middle - 1;
-
+      highestPossible = middle - 1;
     }
-
   }
-
 
   preview.textContent =
-    words
-      .slice(
-        0,
-        lowestFit
-      )
-      .join(" ") +
-    "…";
+    words.slice(0, lowestFit).join(" ") + "…";
 
-
-  preview.classList.add(
-    "is-truncated"
-  );
-
+  preview.classList.add("is-truncated");
 }
 
-
-/* =========================================================
-   14. TRUNCATE ALL CARDS
-========================================================= */
-
 function truncateAllPreviews() {
-
   if (!testimonialTrack) {
-
     return;
-
   }
-
 
   const previews =
     testimonialTrack.querySelectorAll(
       ".testimonial-preview"
     );
 
-
   previews.forEach(
     function (preview) {
-
-      truncatePreview(
-        preview
-      );
-
+      truncatePreview(preview);
     }
   );
-
 }
 
 
 /* =========================================================
-   15. MEASURE CAROUSEL
-========================================================= */
-
-function measureCarousel(
-  firstSet
-) {
-
-  if (!firstSet) {
-
-    return;
-
-  }
-
-
-  testimonialSetWidth =
-    firstSet
-      .getBoundingClientRect()
-      .width;
-
-}
-
-
-/* =========================================================
-   16. START CAROUSEL
-========================================================= */
-
-function startCarouselAnimation() {
-
-  if (animationStarted) {
-
-    return;
-
-  }
-
-
-  const reduceMotion =
-    window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-
-  if (reduceMotion) {
-
-    testimonialCarousel?.classList.add(
-      "reduced-motion"
-    );
-
-    return;
-
-  }
-
-
-  animationStarted =
-    true;
-
-
-  requestAnimationFrame(
-    animateCarousel
-  );
-
-}
-
-
-/* =========================================================
-   17. CAROUSEL ANIMATION LOOP
-========================================================= */
-
-function animateCarousel(
-  currentTime
-) {
-
-  if (
-    previousAnimationTime === null
-  ) {
-
-    previousAnimationTime =
-      currentTime;
-
-  }
-
-
-  const elapsed =
-    currentTime -
-    previousAnimationTime;
-
-
-  previousAnimationTime =
-    currentTime;
-
-
-  /*
-     Prevent jumping after switching browser tabs.
-  */
-
-  const safeElapsed =
-    Math.min(
-      elapsed,
-      50
-    );
-
-
-  if (
-    !carouselPaused &&
-    testimonialSetWidth > 0 &&
-    testimonialTrack
-  ) {
-
-    carouselOffset -=
-      TESTIMONIAL_SPEED *
-      (
-        safeElapsed /
-        1000
-      );
-
-
-    if (
-      carouselOffset <=
-      -testimonialSetWidth
-    ) {
-
-      carouselOffset +=
-        testimonialSetWidth;
-
-    }
-
-
-    testimonialTrack.style.transform =
-      `translate3d(${carouselOffset}px, 0, 0)`;
-
-  }
-
-
-  updateCardSpotlight();
-
-
-  requestAnimationFrame(
-    animateCarousel
-  );
-
-}
-
-
-/* =========================================================
-   18. CENTRE CARD SPOTLIGHT
-========================================================= */
-
-function updateCardSpotlight() {
-
-  if (
-    !testimonialCarousel ||
-    !testimonialTrack
-  ) {
-
-    return;
-
-  }
-
-
-  const cards =
-    testimonialTrack.querySelectorAll(
-      ".testimonial-card"
-    );
-
-
-  const carouselRect =
-    testimonialCarousel
-      .getBoundingClientRect();
-
-
-  const carouselCentre =
-    carouselRect.left +
-    carouselRect.width / 2;
-
-
-  const spotlightDistance =
-    Math.min(
-      500,
-      carouselRect.width *
-      0.45
-    );
-
-
-  cards.forEach(
-    function (card) {
-
-      const cardRect =
-        card.getBoundingClientRect();
-
-
-      const cardCentre =
-        cardRect.left +
-        cardRect.width / 2;
-
-
-      const distance =
-        Math.abs(
-          carouselCentre -
-          cardCentre
-        );
-
-
-      const focusAmount =
-        Math.max(
-          0,
-          1 -
-          distance /
-          spotlightDistance
-        );
-
-
-      const scale =
-        1 +
-        focusAmount *
-        (
-          MAX_CARD_SCALE -
-          1
-        );
-
-
-      card.style.transform =
-        `scale(${scale})`;
-
-
-      card.style.opacity =
-        String(
-          0.72 +
-          focusAmount *
-          0.28
-        );
-
-
-      card.style.zIndex =
-        String(
-          Math.round(
-            focusAmount *
-            10
-          )
-        );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   19. PAUSE ON HOVER
-========================================================= */
-
-testimonialCarousel?.addEventListener(
-  "mouseenter",
-  function () {
-
-    carouselHovered =
-      true;
-
-
-    updateCarouselPauseState();
-
-  }
-);
-
-
-testimonialCarousel?.addEventListener(
-  "mouseleave",
-  function () {
-
-    carouselHovered =
-      false;
-
-
-    updateCarouselPauseState();
-
-  }
-);
-
-
-/* =========================================================
-   20. PAUSE FOR KEYBOARD FOCUS
-========================================================= */
-
-testimonialCarousel?.addEventListener(
-  "focusin",
-  function () {
-
-    carouselFocused =
-      true;
-
-
-    updateCarouselPauseState();
-
-  }
-);
-
-
-testimonialCarousel?.addEventListener(
-  "focusout",
-  function (event) {
-
-    if (
-      !testimonialCarousel.contains(
-        event.relatedTarget
-      )
-    ) {
-
-      carouselFocused =
-        false;
-
-
-      updateCarouselPauseState();
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   21. OPEN TESTIMONIAL MODAL
+   12. OPEN TESTIMONIAL MODAL
 ========================================================= */
 
 function openTestimonialModal(
   testimonial,
   triggerElement
 ) {
-
   if (!testimonialModal) {
-
     return;
-
   }
 
-
-  lastFocusedElement =
-    triggerElement;
-
+  lastFocusedElement = triggerElement;
 
   testimonialModalType.textContent =
     testimonial.type || "";
 
-
   testimonialModalName.textContent =
     testimonial.name || "";
 
+  testimonialModalText.innerHTML = "";
 
-  testimonialModalText.innerHTML =
-    "";
-
-
-  /*
-     Preserve paragraph breaks from JSON.
-  */
-
-  const paragraphs =
-    String(
-      testimonial.testimonial || ""
-    )
-      .trim()
-      .split(
-        /\n\s*\n/
-      );
-
+  const paragraphs = String(
+    testimonial.testimonial || ""
+  )
+    .trim()
+    .split(/\n\s*\n/);
 
   paragraphs.forEach(
     function (paragraphText) {
-
       const paragraph =
-        document.createElement(
-          "p"
-        );
+        document.createElement("p");
 
+      paragraph.textContent = paragraphText
+        .replace(/\s*\n\s*/g, " ")
+        .trim();
 
-      paragraph.textContent =
-        paragraphText
-          .replace(
-            /\s*\n\s*/g,
-            " "
-          )
-          .trim();
-
-
-      testimonialModalText.appendChild(
-        paragraph
-      );
-
+      testimonialModalText.appendChild(paragraph);
     }
   );
 
-
-  testimonialModal.classList.add(
-    "is-open"
-  );
-
-
+  testimonialModal.classList.add("is-open");
   testimonialModal.setAttribute(
     "aria-hidden",
     "false"
   );
 
-
-  document.body.classList.add(
-    "modal-open"
-  );
-
-
-  testimonialModalOpen =
-    true;
-
-
-  updateCarouselPauseState();
-
-
+  document.body.classList.add("modal-open");
   testimonialModalClose?.focus();
-
 }
 
 
 /* =========================================================
-   22. CLOSE TESTIMONIAL MODAL
+   13. CLOSE TESTIMONIAL MODAL
 ========================================================= */
 
 function closeTestimonialModal() {
-
   if (!testimonialModal) {
-
     return;
-
   }
 
-
-  testimonialModal.classList.remove(
-    "is-open"
-  );
-
-
+  testimonialModal.classList.remove("is-open");
   testimonialModal.setAttribute(
     "aria-hidden",
     "true"
   );
 
-
-  document.body.classList.remove(
-    "modal-open"
-  );
-
-
-  testimonialModalOpen =
-    false;
-
-
-  /*
-     Restore focus to the original Read More button.
-  */
+  document.body.classList.remove("modal-open");
 
   if (lastFocusedElement) {
-
     lastFocusedElement.focus();
-
+    lastFocusedElement = null;
   }
-
-
-  /*
-     The focus event above briefly pauses the carousel.
-
-     Clear that state on the next browser frame so
-     the carousel resumes immediately after closing.
-  */
-
-  requestAnimationFrame(
-    function () {
-
-      carouselFocused =
-        false;
-
-
-      carouselHovered =
-        false;
-
-
-      updateCarouselPauseState();
-
-
-      lastFocusedElement =
-        null;
-
-    }
-  );
-
 }
 
-
-/* ---------- X button ---------- */
 
 testimonialModalClose?.addEventListener(
   "click",
@@ -1854,70 +885,38 @@ testimonialModalClose?.addEventListener(
 );
 
 
-/* ---------- Click outside modal ---------- */
-
 testimonialModalBackdrop?.addEventListener(
   "click",
   closeTestimonialModal
 );
 
 
-/* ---------- Escape key ---------- */
-
 document.addEventListener(
   "keydown",
   function (event) {
-
     if (
       event.key === "Escape" &&
-      testimonialModal?.classList.contains(
-        "is-open"
-      )
+      testimonialModal?.classList.contains("is-open")
     ) {
-
       closeTestimonialModal();
-
     }
-
   }
 );
 
 
 /* =========================================================
-   23. RECALCULATE AFTER RESIZE
+   14. RECALCULATE AFTER RESIZE
 ========================================================= */
 
 window.addEventListener(
   "resize",
   function () {
-
     requestAnimationFrame(
       function () {
-
-        const firstSet =
-          testimonialTrack
-            ?.querySelector(
-              ".testimonial-set"
-            );
-
-
-        if (firstSet) {
-
-          measureCarousel(
-            firstSet
-          );
-
-        }
-
-
         truncateAllPreviews();
-
-
-        updateCardSpotlight();
-
+        updateStudentCarouselButtons();
       }
     );
-
   }
 );
 

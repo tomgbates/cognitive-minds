@@ -330,7 +330,7 @@ function createPackageCard(
         target="_blank"
         rel="noopener noreferrer"
       >
-        Enquire
+        ${packageData.ctaText || "Enquire"}
       </a>
 
     </div>
