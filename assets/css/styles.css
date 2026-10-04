@@ -4354,3 +4354,78 @@ a.button.button-primary.whatsapp-button:hover {
     }
 
 }
+
+
+/* ========================================
+   TEMPORARY MEET SUEGNÉ VERSION
+   Used until Suegné's real photograph is ready
+   ======================================== */
+
+/* Hide the finished version that contains the photo */
+.suegne-section-original {
+    display: none;
+}
+
+
+/* Temporary section has no left photo column */
+.suegne-temp-layout {
+    display: block;
+}
+
+
+/* Keep the content comfortably sized and centred */
+.suegne-section-temp .suegne-content {
+    width: 100%;
+    max-width: 1000px;
+    margin-inline: auto;
+}
+
+
+/* Give the temporary heading sensible width */
+.suegne-section-temp .suegne-title {
+    max-width: 800px;
+}
+
+
+/* Give the body copy a comfortable reading width */
+.suegne-section-temp .suegne-copy {
+    max-width: 850px;
+}
+
+/* ========================================
+   ABOUT PAGE — TEMPORARY NO-PHOTO HERO
+
+   Used until Suegné's real photograph
+   is available.
+   ======================================== */
+
+
+/* Hide permanent photo-based hero */
+.page-hero-original {
+    display: none;
+}
+
+
+/* Remove the normal two-column photo layout */
+.page-hero-grid-temp {
+    display: block;
+}
+
+
+/* Give the temporary hero strong but controlled width */
+.page-hero-copy-temp {
+    width: 100%;
+    max-width: 900px;
+}
+
+
+/* Prevent the heading becoming excessively wide */
+.page-hero-temp h1 {
+    max-width: 820px;
+}
+
+
+/* Keep paragraph readable */
+.page-hero-temp .page-hero-lead {
+    max-width: 780px;
+}
