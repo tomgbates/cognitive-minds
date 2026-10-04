@@ -1,0 +1,9 @@
+{
+  "id": "annomi",
+  "name": "Annomi",
+  "type": "Student",
+  "grade": null,
+  "testimonial": "Beste juffrou ooit! Sy het ons baie gehelp om ons werk beter te verstaan.",
+  "featured": true,
+  "active": true
+}
